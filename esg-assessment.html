@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESG 보안 성숙도 진단 시스템</title>
+    <title>ESG 보안 성숙도 진단 설문</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
@@ -18,213 +19,329 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
         }
-        
+
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             padding: 20px;
         }
-        
+
         .header {
             background: white;
-            border-radius: 10px;
-            padding: 30px;
-            margin-bottom: 30px;
+            padding: 40px;
             text-align: center;
+            border-radius: 15px;
+            margin-bottom: 30px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
-        
+
         .header h1 {
             color: #2c3e50;
             font-size: 2.5em;
             margin-bottom: 10px;
+            font-weight: 700;
         }
-        
+
         .header p {
             color: #7f8c8d;
-            font-size: 1.1em;
+            font-size: 1.2em;
+            margin-bottom: 20px;
         }
-        
+
+        .badge {
+            display: inline-block;
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
         .form-container {
             background: white;
-            border-radius: 10px;
             padding: 40px;
+            border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
         }
-        
-        .form-section {
+
+        .section {
             margin-bottom: 40px;
         }
-        
-        .form-section h2 {
+
+        .section h2 {
             color: #2c3e50;
             font-size: 1.8em;
-            margin-bottom: 20px;
-            border-bottom: 3px solid #3498db;
+            margin-bottom: 25px;
             padding-bottom: 10px;
+            border-bottom: 3px solid #3498db;
         }
-        
+
         .form-group {
             margin-bottom: 25px;
         }
-        
-        label {
+
+        .form-group label {
             display: block;
-            font-weight: bold;
             margin-bottom: 8px;
-            color: #2c3e50;
+            font-weight: 600;
+            color: #34495e;
+            font-size: 1.1em;
         }
-        
-        input, select, textarea {
+
+        .form-group input,
+        .form-group select {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #ecf0f1;
-            border-radius: 5px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-        
-        input:focus, select:focus, textarea:focus {
-            border-color: #3498db;
-            outline: none;
-        }
-        
-        .question-group {
-            background: #f8f9fa;
-            padding: 20px;
+            padding: 12px 15px;
+            border: 2px solid #e1e8ed;
             border-radius: 8px;
-            margin-bottom: 20px;
-            border-left: 4px solid #3498db;
+            font-size: 1em;
+            transition: all 0.3s ease;
         }
-        
-        .question-group h3 {
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .question-card {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border-left: 5px solid #3498db;
+            transition: transform 0.2s ease;
+        }
+
+        .question-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .question-text {
+            font-size: 1.1em;
+            font-weight: 600;
             color: #2c3e50;
             margin-bottom: 15px;
-            font-size: 1.3em;
+            line-height: 1.5;
         }
-        
-        .question {
-            margin-bottom: 20px;
-            padding: 15px;
-            background: white;
-            border-radius: 5px;
-            border: 1px solid #e0e0e0;
-        }
-        
-        .question p {
-            margin-bottom: 10px;
-            font-weight: 500;
-        }
-        
-        .rating-scale {
+
+        .rating-container {
             display: flex;
-            justify-content: space-between;
-            margin-top: 10px;
+            gap: 15px;
+            flex-wrap: wrap;
         }
-        
+
         .rating-option {
             flex: 1;
-            text-align: center;
-            margin: 0 5px;
+            min-width: 120px;
         }
-        
+
         .rating-option input[type="radio"] {
-            width: auto;
-            margin-bottom: 5px;
+            display: none;
         }
-        
+
         .rating-option label {
-            font-size: 12px;
-            font-weight: normal;
-            color: #666;
+            display: block;
+            padding: 12px;
+            background: white;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
         }
-        
-        .progress-bar {
+
+        .rating-option input[type="radio"]:checked + label {
+            background: #3498db;
+            color: white;
+            border-color: #2980b9;
+            transform: scale(1.05);
+        }
+
+        .rating-option label:hover {
+            border-color: #3498db;
             background: #ecf0f1;
-            height: 6px;
-            border-radius: 3px;
-            margin-bottom: 20px;
+        }
+
+        .progress-container {
+            background: #ecf0f1;
+            height: 10px;
+            border-radius: 5px;
+            margin: 30px 0;
             overflow: hidden;
         }
-        
-        .progress-fill {
-            background: linear-gradient(90deg, #3498db, #2ecc71);
+
+        .progress-bar {
             height: 100%;
+            background: linear-gradient(90deg, #3498db, #2980b9);
             width: 0%;
             transition: width 0.3s ease;
+            border-radius: 5px;
         }
-        
-        .submit-btn {
-            background: linear-gradient(135deg, #3498db, #2ecc71);
+
+        .progress-text {
+            text-align: center;
+            margin-top: 10px;
+            font-weight: 600;
+            color: #34495e;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #3498db, #2980b9);
             color: white;
             padding: 15px 40px;
             border: none;
-            border-radius: 5px;
-            font-size: 18px;
-            font-weight: bold;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
             cursor: pointer;
-            transition: transform 0.3s ease;
-            width: 100%;
-            margin: 10px 0;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 30px auto;
+            min-width: 200px;
         }
-        
-        .test-btn {
-            background: #e74c3c;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            margin: 5px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        
-        .test-btn.green { background: #27ae60; }
-        .test-btn.purple { background: #9b59b6; }
-        
-        .submit-btn:hover, .test-btn:hover {
+
+        .btn:hover {
             transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
         }
-        
-        .submit-btn:disabled {
+
+        .btn:disabled {
             background: #bdc3c7;
             cursor: not-allowed;
             transform: none;
+            box-shadow: none;
         }
-        
-        .loading {
+
+        .results-container {
             display: none;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-top: 30px;
+        }
+
+        .score-display {
             text-align: center;
-            padding: 20px;
+            padding: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            margin-bottom: 30px;
         }
-        
-        .result-preview {
-            background: #e8f5e8;
-            border: 2px solid #27ae60;
-            border-radius: 10px;
-            padding: 20px;
-            margin-top: 20px;
-            display: none;
-        }
-        
-        .result-preview h3 {
-            color: #27ae60;
+
+        .score-number {
+            font-size: 4em;
+            font-weight: bold;
             margin-bottom: 10px;
         }
 
-        .question-counter {
-            background: #3498db;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            text-align: center;
-            margin-bottom: 20px;
-            font-weight: bold;
+        .score-label {
+            font-size: 1.5em;
+            opacity: 0.9;
         }
-        
-        .test-buttons {
+
+        .chart-container {
+            margin: 30px 0;
+            min-height: 400px;
+        }
+
+        .area-scores {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .area-score-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
             text-align: center;
-            margin-bottom: 20px;
+            border-left: 5px solid #3498db;
+        }
+
+        .area-score-card h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .area-score-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #3498db;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #e74c3c;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+            display: none;
+        }
+
+        .success-message {
+            background: #27ae60;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header, .form-container {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .rating-container {
+                flex-direction: column;
+            }
+            
+            .rating-option {
+                min-width: auto;
+            }
         }
     </style>
 </head>
@@ -232,22 +349,14 @@
     <div class="container">
         <div class="header">
             <h1>🔐 ESG 보안 성숙도 진단</h1>
-            <p>제로트러스트 기반 기업 보안 성숙도 진단 시스템</p>
-            <p>ESG 협력 네트워크 구축 및 수출기업 성장 지원 AI 플랫폼</p>
+            <p>제로트러스트 기반 기업 보안 성숙도 평가</p>
+            <div class="badge">ESG 협력 네트워크 구축 및 수출기업 성장 지원 AI 플랫폼</div>
         </div>
-        
+
         <div class="form-container">
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill"></div>
-            </div>
-            
-            <div class="question-counter" id="questionCounter">
-                진행 상황: 0/24 질문 완료 (0%)
-            </div>
-            
-            <form id="assessmentForm">
+            <form id="esgForm">
                 <!-- 기업 정보 섹션 -->
-                <div class="form-section">
+                <div class="section">
                     <h2>📋 기업 정보</h2>
                     
                     <div class="form-group">
@@ -256,7 +365,7 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="email">담당자 이메일 (결과 발송용) *</label>
+                        <label for="email">이메일 주소 *</label>
                         <input type="email" id="email" name="email" required>
                     </div>
                     
@@ -283,814 +392,394 @@
                         </select>
                     </div>
                 </div>
-                
-                <!-- 진단 질문 섹션 -->
-                <div class="form-section">
-                    <h2>🔍 보안 성숙도 진단 (총 24개 질문)</h2>
-                    <p style="margin-bottom: 20px; color: #666;">각 질문에 대해 현재 상황에 가장 적합한 점수를 선택해주세요.</p>
-                    
-                    <!-- 테스트 버튼들 -->
-                    <div class="test-buttons">
-                        <button type="button" class="test-btn" onclick="fillTest(1)">🧪 테스트: 모든 질문 1점</button>
-                        <button type="button" class="test-btn green" onclick="fillTest(4)">🏆 테스트: 모든 질문 4점</button>
-                        <button type="button" class="test-btn purple" onclick="fillTestRandom()">🎲 테스트: 랜덤 점수</button>
-                    </div>
-                    
-                    <!-- 신원 영역 -->
-                    <div class="question-group">
-                        <h3>1. 신원 (Identity) - 4개 질문</h3>
-                        
-                        <div class="question">
-                            <p><strong>[1/24]</strong> 온프레미스와 클라우드 서비스의 ID 관리를 통합하여 사용하고 있습니까?</p>
-                            <div class="rating-scale">
-                                <div class="rating-option">
-                                    <input type="radio" name="identity_q1" value="1" id="id1_1">
-                                    <label for="id1_1">전혀 없음<br>(1점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="identity_q1" value="2" id="id1_2">
-                                    <label for="id1_2">부분적<br>(2점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="identity_q1" value="3" id="id1_3">
-                                    <label for="id1_3">대부분<br>(3점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="identity_q1" value="4" id="id1_4">
-                                    <label for="id1_4">완전 구현<br>(4점)</label>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="question">
-                            <p><strong>[2/24]</strong> 다단계 인증(MFA)를 사용하고 있습니까?</p>
-                            <div class="rating-scale">
-                                <div class="rating-option">
-                                    <input type="radio" name="identity_q2" value="1" id="id2_1">
-                                    <label for="id2_1">전혀 없음<br>(1점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="identity_q2" value="2" id="id2_2">
-                                    <label for="id2_2">부분적<br>(2점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="identity_q2" value="3" id="id2_3">
-                                    <label for="id2_3">대부분<br>(3점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="identity_q2" value="4" id="id2_4">
-                                    <label for="id2_4">완전 구현<br>(4점)</label>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="question">
-                            <p><strong>[3/24]</strong> 클라우드 기반 인증 및 FIDO 기반 인증을 지원합니까?</p>
-                            <div class="rating-scale">
-                                <div class="rating-option">
-                                    <input type="radio" name="identity_q3" value="1" id="id3_1">
-                                    <label for="id3_1">전혀 없음<br>(1점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="identity_q3" value="2" id="id3_2">
-                                    <label for="id3_2">부분적<br>(2점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="identity_q3" value="3" id="id3_3">
-                                    <label for="id3_3">대부분<br>(3점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="identity_q3" value="4" id="id3_4">
-                                    <label for="id3_4">완전 구현<br>(4점)</label>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="question">
-                            <p><strong>[4/24]</strong> AI 기반으로 위험도를 자동 판단하여 보안정책을 적용할 수 있습니까?</p>
-                            <div class="rating-scale">
-                                <div class="rating-option">
-                                    <input type="radio" name="identity_q4" value="1" id="id4_1">
-                                    <label for="id4_1">전혀 없음<br>(1점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="identity_q4" value="2" id="id4_2">
-                                    <label for="id4_2">부분적<br>(2점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="identity_q4" value="3" id="id4_3">
-                                    <label for="id4_3">대부분<br>(3점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="identity_q4" value="4" id="id4_4">
-                                    <label for="id4_4">완전 구현<br>(4점)</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- 기기 및 엔드포인트 영역 -->
-                    <div class="question-group">
-                        <h3>2. 기기 및 엔드포인트 - 4개 질문</h3>
-                        
-                        <div class="question">
-                            <p><strong>[5/24]</strong> 모든 기기의 보안정책 준수 정보를 수집하고 있습니까?</p>
-                            <div class="rating-scale">
-                                <div class="rating-option">
-                                    <input type="radio" name="device_q1" value="1" id="dev1_1">
-                                    <label for="dev1_1">전혀 없음<br>(1점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="device_q1" value="2" id="dev1_2">
-                                    <label for="dev1_2">부분적<br>(2점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="device_q1" value="3" id="dev1_3">
-                                    <label for="dev1_3">대부분<br>(3점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="device_q1" value="4" id="dev1_4">
-                                    <label for="dev1_4">완전 구현<br>(4점)</label>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="question">
-                            <p><strong>[6/24]</strong> 대부분의 기기에 보안정책을 자동으로 적용하고 있습니까?</p>
-                            <div class="rating-scale">
-                                <div class="rating-option">
-                                    <input type="radio" name="device_q2" value="1" id="dev2_1">
-                                    <label for="dev2_1">전혀 없음<br>(1점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="device_q2" value="2" id="dev2_2">
-                                    <label for="dev2_2">부분적<br>(2점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="device_q2" value="3" id="dev2_3">
-                                    <label for="dev2_3">대부분<br>(3점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="device_q2" value="4" id="dev2_4">
-                                    <label for="dev2_4">완전 구현<br>(4점)</label>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="question">
-                            <p><strong>[7/24]</strong> 모든 기기에 대해 위협 탐지 및 자동 대응이 가능합니까?</p>
-                            <div class="rating-scale">
-                                <div class="rating-option">
-                                    <input type="radio" name="device_q3" value="1" id="dev3_1">
-                                    <label for="dev3_1">전혀 없음<br>(1점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="device_q3" value="2" id="dev3_2">
-                                    <label for="dev3_2">부분적<br>(2점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="device_q3" value="3" id="dev3_3">
-                                    <label for="dev3_3">대부분<br>(3점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="device_q3" value="4" id="dev3_4">
-                                    <label for="dev3_4">완전 구현<br>(4점)</label>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="question">
-                            <p><strong>[8/24]</strong> 기기 보안상태를 실시간으로 모니터링하고 자동 관리가 가능합니까?</p>
-                            <div class="rating-scale">
-                                <div class="rating-option">
-                                    <input type="radio" name="device_q4" value="1" id="dev4_1">
-                                    <label for="dev4_1">전혀 없음<br>(1점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="device_q4" value="2" id="dev4_2">
-                                    <label for="dev4_2">부분적<br>(2점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="device_q4" value="3" id="dev4_3">
-                                    <label for="dev4_3">대부분<br>(3점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="device_q4" value="4" id="dev4_4">
-                                    <label for="dev4_4">완전 구현<br>(4점)</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- 네트워크 영역 -->
-                    <div class="question-group">
-                        <h3>3. 네트워크 - 4개 질문</h3>
-                        
-                        <div class="question">
-                            <p><strong>[9/24]</strong> 경계보안 중심 네트워크에서 모든 트래픽 모니터링이 가능합니까?</p>
-                            <div class="rating-scale">
-                                <div class="rating-option">
-                                    <input type="radio" name="network_q1" value="1" id="net1_1">
-                                    <label for="net1_1">전혀 없음<br>(1점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="network_q1" value="2" id="net1_2">
-                                    <label for="net1_2">부분적<br>(2점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="network_q1" value="3" id="net1_3">
-                                    <label for="net1_3">대부분<br>(3점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="network_q1" value="4" id="net1_4">
-                                    <label for="net1_4">완전 구현<br>(4점)</label>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="question">
-                            <p><strong>[10/24]</strong> 내부 애플리케이션들 간의 트래픽을 서로 격리하고 있습니까?</p>
-                            <div class="rating-scale">
-                                <div class="rating-option">
-                                    <input type="radio" name="network_q2" value="1" id="net2_1">
-                                    <label for="net2_1">전혀 없음<br>(1점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="network_q2" value="2" id="net2_2">
-                                    <label for="net2_2">부분적<br>(2점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="network_q2" value="3" id="net2_3">
-                                    <label for="net2_3">대부분<br>(3점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="network_q2" value="4" id="net2_4">
-                                    <label for="net2_4">완전 구현<br>(4점)</label>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="question">
-                            <p><strong>[11/24]</strong> 마이크로 세그멘테이션을 통해 각 애플리케이션을 독립적으로 보호하고 있습니까?</p>
-                            <div class="rating-scale">
-                                <div class="rating-option">
-                                    <input type="radio" name="network_q3" value="1" id="net3_1">
-                                    <label for="net3_1">전혀 없음<br>(1점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="network_q3" value="2" id="net3_2">
-                                    <label for="net3_2">부분적<br>(2점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="network_q3" value="3" id="net3_3">
-                                    <label for="net3_3">대부분<br>(3점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="network_q3" value="4" id="net3_4">
-                                    <label for="net3_4">완전 구현<br>(4점)</label>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="question">
-                            <p><strong>[12/24]</strong> 자동화된 네트워크 보안 정책 배포 및 관리가 가능합니까?</p>
-                            <div class="rating-scale">
-                                <div class="rating-option">
-                                    <input type="radio" name="network_q4" value="1" id="net4_1">
-                                    <label for="net4_1">전혀 없음<br>(1점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="network_q4" value="2" id="net4_2">
-                                    <label for="net4_2">부분적<br>(2점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="network_q4" value="3" id="net4_3">
-                                    <label for="net4_3">대부분<br>(3점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="network_q4" value="4" id="net4_4">
-                                    <label for="net4_4">완전 구현<br>(4점)</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- 시스템 영역 -->
-                    <div class="question-group">
-                        <h3>4. 시스템 - 4개 질문</h3>
-                        
-                        <div class="question">
-                            <p><strong>[13/24]</strong> 시스템 접근 시 다단계 인증을 사용하고 있습니까?</p>
-                            <div class="rating-scale">
-                                <div class="rating-option">
-                                    <input type="radio" name="system_q1" value="1" id="sys1_1">
-                                    <label for="sys1_1">단순 ID/PW만<br>(1점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="system_q1" value="2" id="sys1_2">
-                                    <label for="sys1_2">부분적 강화<br>(2점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="system_q1" value="3" id="sys1_3">
-                                    <label for="sys1_3">대부분 다단계<br>(3점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="system_q1" value="4" id="sys1_4">
-                                    <label for="sys1_4">완전 다단계<br>(4점)</label>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="question">
-                            <p><strong>[14/24]</strong> 모든 시스템을 통합적으로 관리하고 있습니까?</p>
-                            <div class="rating-scale">
-                                <div class="rating-option">
-                                    <input type="radio" name="system_q2" value="1" id="sys2_1">
-                                    <label for="sys2_1">개별 관리<br>(1점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="system_q2" value="2" id="sys2_2">
-                                    <label for="sys2_2">부분 통합<br>(2점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="system_q2" value="3" id="sys2_3">
-                                    <label for="sys2_3">대부분 통합<br>(3점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="system_q2" value="4" id="sys2_4">
-                                    <label for="sys2_4">완전 통합<br>(4점)</label>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="question">
-                            <p><strong>[15/24]</strong> 보안 패치를 자동으로 적용할 수 있습니까?</p>
-                            <div class="rating-scale">
-                                <div class="rating-option">
-                                    <input type="radio" name="system_q3" value="1" id="sys3_1">
-                                    <label for="sys3_1">수동 패치<br>(1점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="system_q3" value="2" id="sys3_2">
-                                    <label for="sys3_2">부분 자동<br>(2점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="system_q3" value="3" id="sys3_3">
-                                    <label for="sys3_3">대부분 자동<br>(3점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="system_q3" value="4" id="sys3_4">
-                                    <label for="sys3_4">완전 자동<br>(4점)</label>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="question">
-                            <p><strong>[16/24]</strong> 실시간 모니터링하고 자동 보안 대응이 가능합니까?</p>
-                            <div class="rating-scale">
-                                <div class="rating-option">
-                                    <input type="radio" name="system_q4" value="1" id="sys4_1">
-                                    <label for="sys4_1">수동 대응<br>(1점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="system_q4" value="2" id="sys4_2">
-                                    <label for="sys4_2">부분 자동<br>(2점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="system_q4" value="3" id="sys4_3">
-                                    <label for="sys4_3">대부분 자동<br>(3점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="system_q4" value="4" id="sys4_4">
-                                    <label for="sys4_4">완전 자동<br>(4점)</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- 애플리케이션 영역 -->
-                    <div class="question-group">
-                        <h3>5. 애플리케이션 및 워크로드 - 4개 질문</h3>
-                        
-                        <div class="question">
-                            <p><strong>[17/24]</strong> 애플리케이션 접근 권한을 어떻게 관리하고 있습니까?</p>
-                            <div class="rating-scale">
-                                <div class="rating-option">
-                                    <input type="radio" name="application_q1" value="1" id="app1_1">
-                                    <label for="app1_1">수동 설정<br>(1점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="application_q1" value="2" id="app1_2">
-                                    <label for="app1_2">부분 자동<br>(2점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="application_q1" value="3" id="app1_3">
-                                    <label for="app1_3">대부분 자동<br>(3점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="application_q1" value="4" id="app1_4">
-                                    <label for="app1_4">완전 자동<br>(4점)</label>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="question">
-                            <p><strong>[18/24]</strong> 애플리케이션 개발 시 보안 테스트를 수행하고 있습니까?</p>
-                            <div class="rating-scale">
-                                <div class="rating-option">
-                                    <input type="radio" name="application_q2" value="1" id="app2_1">
-                                    <label for="app2_1">테스트 없음<br>(1점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="application_q2" value="2" id="app2_2">
-                                    <label for="app2_2">기본 테스트<br>(2점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="application_q2" value="3" id="app2_3">
-                                    <label for="app2_3">체계적 테스트<br>(3점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="application_q2" value="4" id="app2_4">
-                                    <label for="app2_4">자동화 테스트<br>(4점)</label>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="question">
-                            <p><strong>[19/24]</strong> 최소권한 원칙으로 애플리케이션 접근을 자동 제어하고 있습니까?</p>
-                            <div class="rating-scale">
-                                <div class="rating-option">
-                                    <input type="radio" name="application_q3" value="1" id="app3_1">
-                                    <label for="app3_1">권한 제어 없음<br>(1점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="application_q3" value="2" id="app3_2">
-                                    <label for="app3_2">수동 제어<br>(2점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="application_q3" value="3" id="app3_3">
-                                    <label for="app3_3">부분 자동<br>(3점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="application_q3" value="4" id="app3_4">
-                                    <label for="app3_4">완전 자동<br>(4점)</label>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="question">
-                            <p><strong>[20/24]</strong> 실시간 위험 분석을 통해 애플리케이션 접근을 자동으로 제어할 수 있습니까?</p>
-                            <div class="rating-scale">
-                                <div class="rating-option">
-                                    <input type="radio" name="application_q4" value="1" id="app4_1">
-                                    <label for="app4_1">위험 분석 없음<br>(1점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="application_q4" value="2" id="app4_2">
-                                    <label for="app4_2">수동 분석<br>(2점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="application_q4" value="3" id="app4_3">
-                                    <label for="app4_3">부분 자동<br>(3점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="application_q4" value="4" id="app4_4">
-                                    <label for="app4_4">AI 기반 자동<br>(4점)</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- 데이터 영역 -->
-                    <div class="question-group">
-                        <h3>6. 데이터 - 4개 질문</h3>
-                        
-                        <div class="question">
-                            <p><strong>[21/24]</strong> 데이터 분류 및 접근권한을 어떻게 관리하고 있습니까?</p>
-                            <div class="rating-scale">
-                                <div class="rating-option">
-                                    <input type="radio" name="data_q1" value="1" id="data1_1">
-                                    <label for="data1_1">수동 분류<br>(1점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="data_q1" value="2" id="data1_2">
-                                    <label for="data1_2">부분 자동<br>(2점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="data_q1" value="3" id="data1_3">
-                                    <label for="data1_3">대부분 자동<br>(3점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="data_q1" value="4" id="data1_4">
-                                    <label for="data1_4">완전 자동<br>(4점)</label>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="question">
-                            <p><strong>[22/24]</strong> 중요 데이터에 대해 자동 분류 및 접근 제어가 가능합니까?</p>
-                            <div class="rating-scale">
-                                <div class="rating-option">
-                                    <input type="radio" name="data_q2" value="1" id="data2_1">
-                                    <label for="data2_1">제어 없음<br>(1점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="data_q2" value="2" id="data2_2">
-                                    <label for="data2_2">수동 제어<br>(2점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="data_q2" value="3" id="data2_3">
-                                    <label for="data2_3">부분 자동<br>(3점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="data_q2" value="4" id="data2_4">
-                                    <label for="data2_4">완전 자동<br>(4점)</label>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="question">
-                            <p><strong>[23/24]</strong> 최소권한 원칙으로 데이터 접근을 자동 관리하고 있습니까?</p>
-                            <div class="rating-scale">
-                                <div class="rating-option">
-                                    <input type="radio" name="data_q3" value="1" id="data3_1">
-                                    <label for="data3_1">권한 관리 없음<br>(1점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="data_q3" value="2" id="data3_2">
-                                    <label for="data3_2">수동 관리<br>(2점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="data_q3" value="3" id="data3_3">
-                                    <label for="data3_3">부분 자동<br>(3점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="data_q3" value="4" id="data3_4">
-                                    <label for="data3_4">완전 자동<br>(4점)</label>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="question">
-                            <p><strong>[24/24]</strong> AI를 이용하여 실시간으로 데이터를 분류하고 접근을 제어하고 있습니까?</p>
-                            <div class="rating-scale">
-                                <div class="rating-option">
-                                    <input type="radio" name="data_q4" value="1" id="data4_1">
-                                    <label for="data4_1">AI 활용 없음<br>(1점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="data_q4" value="2" id="data4_2">
-                                    <label for="data4_2">기본 AI 활용<br>(2점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="data_q4" value="3" id="data4_3">
-                                    <label for="data4_3">고급 AI 활용<br>(3점)</label>
-                                </div>
-                                <div class="rating-option">
-                                    <input type="radio" name="data_q4" value="4" id="data4_4">
-                                    <label for="data4_4">AI 완전 통합<br>(4점)</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- 미리보기 결과 -->
-                    <div class="result-preview" id="resultPreview">
-                        <h3>📊 진단 결과 미리보기</h3>
-                        <p id="previewScore">현재까지 점수: 0/96점</p>
-                        <p id="previewLevel">예상 성숙도: Level 1 (기존 단계)</p>
-                        <p id="previewAreas" style="margin-top: 10px; font-size: 14px; color: #333;"></p>
-                        <p style="margin-top: 10px; font-size: 14px; color: #666;">
-                            * 모든 질문 완료 후 상세한 분석 결과가 이메일로 발송됩니다.
-                        </p>
-                    </div>
+
+                <!-- 진행률 표시 -->
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar"></div>
                 </div>
-                
-                <div class="loading" id="loading">
-                    <p>📊 결과를 분석하고 있습니다...</p>
-                    <p>잠시만 기다려 주세요.</p>
+                <div class="progress-text" id="progressText">기업정보 입력 중...</div>
+
+                <!-- 보안 진단 질문 섹션 -->
+                <div class="section" id="questionsSection" style="display: none;">
+                    <h2>🔒 보안 성숙도 진단 (24문항)</h2>
+                    <div id="questionsContainer"></div>
                 </div>
-                
-                <button type="submit" class="submit-btn" id="submitBtn">
-                    📧 진단 완료 및 결과 이메일 받기
-                </button>
+
+                <button type="button" class="btn" id="startBtn">진단 시작</button>
+                <button type="button" class="btn hidden" id="submitBtn">진단 완료</button>
             </form>
+
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+            <div class="loading" id="loadingMessage" style="display: none;">
+                <div class="spinner"></div>
+                <p>진단 결과를 분석 중입니다...</p>
+            </div>
+        </div>
+
+        <!-- 결과 표시 영역 -->
+        <div class="results-container" id="resultsContainer">
+            <h2>📊 진단 결과</h2>
+            <div class="score-display" id="scoreDisplay">
+                <div class="score-number" id="overallScore">0.0</div>
+                <div class="score-label" id="maturityLevel">Level 1 - 기존(Traditional)</div>
+            </div>
+            
+            <div class="chart-container">
+                <div id="radarChart"></div>
+            </div>
+            
+            <div class="area-scores" id="areaScores"></div>
         </div>
     </div>
-    
+
     <script>
-        // 웹앱 URL
-        const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbyI3i2atkJB7z6BFNdLZp1S_lC6hELTQJ_9Dgiq6QAwbii0rC_yxS6OgVRyYqy8vEjV/exec';
+        // ✅ 실제 웹 앱 URL로 연결!
+        const API_URL = 'https://script.google.com/macros/s/AKfycbyI3i2atkJB7z6BFNdLZp1S_lC6hELTQJ_9Dgiq6QAwbii0rC_yxS6OgVRyYqy8vEjV/exec';
         
-        // 테스트용 자동 입력 함수
-        function fillTest(score) {
-            // 기업 정보 자동 입력
-            document.getElementById('companyName').value = '테스트기업';
-            document.getElementById('email').value = 'test@example.com';
-            document.getElementById('companySize').value = '2';
-            document.getElementById('businessType').value = '3';
-            
-            // 모든 질문에 지정된 점수로 자동 입력
-            const areas = ['identity', 'device', 'network', 'system', 'application', 'data'];
-            areas.forEach(area => {
-                for (let i = 1; i <= 4; i++) {
-                    const name = area + '_q' + i;
-                    const radio = document.querySelector('input[name="' + name + '"][value="' + score + '"]');
-                    if (radio) radio.checked = true;
-                }
-            });
-            
-            updateProgress();
-            alert('✅ 모든 질문이 ' + score + '점으로 채워졌습니다!');
-        }
-        
-        function fillTestRandom() {
-            // 기업 정보 자동 입력
-            document.getElementById('companyName').value = '테스트기업';
-            document.getElementById('email').value = 'test@example.com';
-            document.getElementById('companySize').value = '2';
-            document.getElementById('businessType').value = '3';
-            
-            // 모든 질문에 랜덤 점수로 자동 입력
-            const areas = ['identity', 'device', 'network', 'system', 'application', 'data'];
-            areas.forEach(area => {
-                for (let i = 1; i <= 4; i++) {
-                    const score = Math.floor(Math.random() * 4) + 1;
-                    const name = area + '_q' + i;
-                    const radio = document.querySelector('input[name="' + name + '"][value="' + score + '"]');
-                    if (radio) radio.checked = true;
-                }
-            });
-            
-            updateProgress();
-            alert('🎲 모든 질문이 랜덤 점수로 채워졌습니다!');
-        }
-        
-        // 진행률 업데이트
-        function updateProgress() {
-            const totalQuestions = 24;
-            const answeredQuestions = document.querySelectorAll('input[type="radio"]:checked').length;
-            const progressPercent = (answeredQuestions / totalQuestions) * 100;
-            
-            document.getElementById('progressFill').style.width = progressPercent + '%';
-            document.getElementById('questionCounter').textContent = 
-                '진행 상황: ' + answeredQuestions + '/24 질문 완료 (' + Math.round(progressPercent) + '%)';
-            
-            if (answeredQuestions > 0) {
-                const totalScore = Array.from(document.querySelectorAll('input[type="radio"]:checked'))
-                    .reduce((sum, input) => sum + parseInt(input.value), 0);
-                
-                const averageScore = totalScore / answeredQuestions;
-                const estimatedTotal = Math.round(averageScore * 24);
-                const level = averageScore <= 1.5 ? 1 : averageScore <= 2.5 ? 2 : averageScore <= 3.5 ? 3 : 4;
-                const levelNames = ['기존(Traditional)', '초기(Initial)', '향상(Advanced)', '최적화(Optimal)'];
-                
-                const areaScores = calculateAreaScores();
-                const areaText = Object.entries(areaScores)
-                    .map(([area, score]) => area + ': ' + (score > 0 ? score.toFixed(1) : '미완료') + '점')
-                    .join(' | ');
-                
-                document.getElementById('previewScore').textContent = '현재 점수: ' + totalScore + '점 (예상 총점: ' + estimatedTotal + '/96점)';
-                document.getElementById('previewLevel').textContent = '예상 성숙도: Level ' + level + ' (' + levelNames[level-1] + ')';
-                document.getElementById('previewAreas').textContent = areaText;
-                document.getElementById('resultPreview').style.display = 'block';
-            }
-        }
-        
-        function calculateAreaScores() {
-            const areas = {
-                '신원': ['identity_q1', 'identity_q2', 'identity_q3', 'identity_q4'],
-                '기기': ['device_q1', 'device_q2', 'device_q3', 'device_q4'],
-                '네트워크': ['network_q1', 'network_q2', 'network_q3', 'network_q4'],
-                '시스템': ['system_q1', 'system_q2', 'system_q3', 'system_q4'],
-                '애플리케이션': ['application_q1', 'application_q2', 'application_q3', 'application_q4'],
-                '데이터': ['data_q1', 'data_q2', 'data_q3', 'data_q4']
-            };
-            
-            const areaScores = {};
-            for (const areaName in areas) {
-                let areaTotal = 0;
-                let answeredCount = 0;
-                
-                areas[areaName].forEach(questionName => {
-                    const answer = document.querySelector('input[name="' + questionName + '"]:checked');
-                    if (answer) {
-                        areaTotal += parseInt(answer.value);
-                        answeredCount++;
-                    }
-                });
-                
-                areaScores[areaName] = answeredCount > 0 ? (areaTotal / answeredCount * 4) : 0;
-            }
-            
-            return areaScores;
-        }
-        
-        // 라디오 버튼 이벤트 리스너
-        document.querySelectorAll('input[type="radio"]').forEach(radio => {
-            radio.addEventListener('change', updateProgress);
+        // 보안 진단 질문 데이터
+        const questions = {
+            "신원": [
+                "온프레미스(사내 서버)와 외부 클라우드 서비스의 ID 관리를 통합하여 사용하고 있습니까?",
+                "다단계 인증(MFA)를 사용하고 있습니까?", 
+                "클라우드 기반 인증 및 FIDO(생체인증 표준) 기반 인증을 지원합니까?",
+                "AI 기반으로 위험도를 자동 판단하여 보안정책을 적용할 수 있습니까?"
+            ],
+            "기기 및 엔드포인트": [
+                "모든 기기(PC, 스마트폰, 태블릿 등)의 보안정책 준수 정보를 수집하고 있습니까?",
+                "대부분의 기기에 보안정책을 자동으로 적용하고 있습니까?",
+                "모든 기기에 대해 위협 탐지 및 자동 대응이 가능합니까?",
+                "기기 보안상태를 실시간으로 모니터링하고 자동 관리가 가능합니까?"
+            ],
+            "네트워크": [
+                "경계보안(방화벽) 중심의 네트워크에서 모든 트래픽 모니터링이 가능합니까?",
+                "내부 애플리케이션들 간의 트래픽을 서로 격리하고 있습니까?",
+                "마이크로 세그멘테이션을 통해 각 애플리케이션을 독립적으로 보호하고 있습니까?",
+                "자동화된 네트워크 보안 정책 배포 및 관리가 가능합니까?"
+            ],
+            "시스템": [
+                "시스템 접근 시 단순한 ID/패스워드만 사용하고 있습니까? (낮을수록 좋음)",
+                "각 시스템을 독립적으로 관리하고 있습니까?",
+                "온프레미스와 클라우드 시스템에 보안 패치를 자동으로 적용할 수 있습니까?",
+                "모든 시스템을 실시간으로 모니터링하고 자동 보안 대응이 가능합니까?"
+            ],
+            "애플리케이션": [
+                "애플리케이션 접근 권한을 수동으로 설정하고 있습니까?",
+                "애플리케이션 개발 시 기본적인 보안 테스트를 수행하고 있습니까?",
+                "최소권한 원칙으로 애플리케이션 접근을 자동 제어하고 있습니까?",
+                "실시간 위험 분석을 통해 애플리케이션 접근을 자동으로 제어할 수 있습니까?"
+            ],
+            "데이터": [
+                "데이터를 수동으로 분류하고 접근권한을 설정하고 있습니까?",
+                "일부 중요 데이터에 대해 자동 분류 및 접근 제어가 가능합니까?",
+                "최소권한 원칙으로 데이터 접근을 자동 관리하고 있습니까?",
+                "AI를 이용하여 실시간으로 데이터를 분류하고 접근을 제어하고 있습니까?"
+            ]
+        };
+
+        let currentQuestionIndex = 0;
+        let answers = {};
+        let totalQuestions = 0;
+
+        // 전체 질문 수 계산
+        Object.values(questions).forEach(categoryQuestions => {
+            totalQuestions += categoryQuestions.length;
         });
-        
-        // 폼 제출 처리
-        document.getElementById('assessmentForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
+
+        document.getElementById('startBtn').addEventListener('click', function() {
+            // 기업 정보 유효성 검사
             const companyName = document.getElementById('companyName').value;
             const email = document.getElementById('email').value;
             const companySize = document.getElementById('companySize').value;
             const businessType = document.getElementById('businessType').value;
-            
+
             if (!companyName || !email || !companySize || !businessType) {
-                alert('기업 정보를 모두 입력해주세요.');
+                showError('모든 기업 정보를 입력해주세요.');
                 return;
             }
-            
-            const totalQuestions = 24;
-            const answeredQuestions = document.querySelectorAll('input[type="radio"]:checked').length;
-            
-            if (answeredQuestions < totalQuestions) {
-                alert('모든 질문에 답변해주세요. (현재 ' + answeredQuestions + '/' + totalQuestions + '개 완료)');
-                return;
-            }
-            
-            const answers = {};
-            let totalScore = 0;
-            const questionGroups = ['identity', 'device', 'network', 'system', 'application', 'data'];
-            const areaScores = {};
-            
-            questionGroups.forEach(group => {
-                let groupScore = 0;
-                for (let i = 1; i <= 4; i++) {
-                    const questionName = group + '_q' + i;
-                    const answer = document.querySelector('input[name="' + questionName + '"]:checked');
-                    if (answer) {
-                        const score = parseInt(answer.value);
-                        answers[questionName] = score;
-                        totalScore += score;
-                        groupScore += score;
-                    }
-                }
-                areaScores[group] = groupScore;
+
+            // 질문 섹션 표시
+            document.getElementById('questionsSection').style.display = 'block';
+            generateQuestions();
+            this.style.display = 'none';
+            document.getElementById('submitBtn').classList.remove('hidden');
+            updateProgress();
+        });
+
+        function generateQuestions() {
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = '';
+            let questionIndex = 0;
+
+            Object.entries(questions).forEach(([category, categoryQuestions]) => {
+                categoryQuestions.forEach((question, index) => {
+                    const questionCard = document.createElement('div');
+                    questionCard.className = 'question-card';
+                    questionCard.innerHTML = `
+                        <div class="question-text">
+                            <strong>[${category}] ${questionIndex + 1}/${totalQuestions}</strong><br>
+                            ${question}
+                        </div>
+                        <div class="rating-container">
+                            <div class="rating-option">
+                                <input type="radio" id="q${questionIndex}_1" name="question_${questionIndex}" value="1">
+                                <label for="q${questionIndex}_1">1점<br>전혀 없음</label>
+                            </div>
+                            <div class="rating-option">
+                                <input type="radio" id="q${questionIndex}_2" name="question_${questionIndex}" value="2">
+                                <label for="q${questionIndex}_2">2점<br>부분적 구현</label>
+                            </div>
+                            <div class="rating-option">
+                                <input type="radio" id="q${questionIndex}_3" name="question_${questionIndex}" value="3">
+                                <label for="q${questionIndex}_3">3점<br>대부분 구현</label>
+                            </div>
+                            <div class="rating-option">
+                                <input type="radio" id="q${questionIndex}_4" name="question_${questionIndex}" value="4">
+                                <label for="q${questionIndex}_4">4점<br>완전 구현</label>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(questionCard);
+                    questionIndex++;
+                });
             });
+
+            // 답변 변경 시 진행률 업데이트
+            container.addEventListener('change', updateProgress);
+        }
+
+        function updateProgress() {
+            const totalInputs = document.querySelectorAll('input[type="radio"]');
+            const checkedInputs = document.querySelectorAll('input[type="radio"]:checked');
+            const companyInfoFilled = document.getElementById('companyName').value && 
+                                    document.getElementById('email').value &&
+                                    document.getElementById('companySize').value &&
+                                    document.getElementById('businessType').value;
+
+            let progress = 0;
+            if (companyInfoFilled) {
+                progress = 20 + (checkedInputs.length / totalQuestions * 80);
+            } else {
+                progress = 0;
+            }
+
+            document.getElementById('progressBar').style.width = progress + '%';
             
-            const averageScore = totalScore / 24;
-            const maturityLevel = averageScore <= 1.5 ? 1 : averageScore <= 2.5 ? 2 : averageScore <= 3.5 ? 3 : 4;
+            if (progress < 20) {
+                document.getElementById('progressText').textContent = '기업정보 입력 중...';
+            } else if (progress < 100) {
+                document.getElementById('progressText').textContent = `진단 진행 중... (${checkedInputs.length}/${totalQuestions} 완료)`;
+            } else {
+                document.getElementById('progressText').textContent = '진단 완료! 결과 확인을 위해 "진단 완료" 버튼을 클릭하세요.';
+            }
+        }
+
+        document.getElementById('submitBtn').addEventListener('click', function() {
+            // 모든 질문 응답 확인
+            const checkedInputs = document.querySelectorAll('input[type="radio"]:checked');
+            if (checkedInputs.length < totalQuestions) {
+                showError(`모든 질문에 답변해주세요. (${checkedInputs.length}/${totalQuestions} 완료)`);
+                return;
+            }
+
+            // 답변 수집
+            collectAnswers();
             
-            const data = {
-                companyName: companyName,
-                email: email,
-                companySize: parseInt(companySize),
-                businessType: parseInt(businessType),
-                overallScore: totalScore,
+            // 점수 계산
+            const scores = calculateScores();
+            
+            // 결과 표시
+            displayResults(scores);
+            
+            // 서버에 데이터 전송
+            submitToServer(scores);
+        });
+
+        function collectAnswers() {
+            answers = {};
+            let questionIndex = 0;
+
+            Object.keys(questions).forEach(category => {
+                answers[category] = [];
+                questions[category].forEach(() => {
+                    const selectedOption = document.querySelector(`input[name="question_${questionIndex}"]:checked`);
+                    answers[category].push(parseInt(selectedOption.value));
+                    questionIndex++;
+                });
+            });
+        }
+
+        function calculateScores() {
+            const scores = {};
+            let totalScore = 0;
+            let questionCount = 0;
+
+            Object.entries(answers).forEach(([category, categoryAnswers]) => {
+                const categoryScore = categoryAnswers.reduce((sum, score) => sum + score, 0) / categoryAnswers.length;
+                scores[category] = Math.round(categoryScore * 10) / 10;
+                totalScore += categoryScore;
+                questionCount++;
+            });
+
+            const overallScore = Math.round((totalScore / questionCount) * 10) / 10;
+            const maturityLevel = determineMaturityLevel(overallScore);
+
+            return {
+                overall: overallScore,
                 maturityLevel: maturityLevel,
-                identityScore: areaScores.identity || 0,
-                deviceScore: areaScores.device || 0,
-                networkScore: areaScores.network || 0,
-                systemScore: areaScores.system || 0,
-                applicationScore: areaScores.application || 0,
-                dataScore: areaScores.data || 0,
+                areas: scores
+            };
+        }
+
+        function determineMaturityLevel(score) {
+            if (score <= 1.5) return { level: 1, name: "기존(Traditional)" };
+            if (score <= 2.5) return { level: 2, name: "초기(Initial)" };
+            if (score <= 3.5) return { level: 3, name: "향상(Advanced)" };
+            return { level: 4, name: "최적화(Optimal)" };
+        }
+
+        function displayResults(scores) {
+            document.getElementById('overallScore').textContent = scores.overall.toFixed(1);
+            document.getElementById('maturityLevel').textContent = `Level ${scores.maturityLevel.level} - ${scores.maturityLevel.name}`;
+
+            // 영역별 점수 표시
+            const areaScoresContainer = document.getElementById('areaScores');
+            areaScoresContainer.innerHTML = '';
+
+            Object.entries(scores.areas).forEach(([area, score]) => {
+                const areaCard = document.createElement('div');
+                areaCard.className = 'area-score-card';
+                areaCard.innerHTML = `
+                    <h3>${area}</h3>
+                    <div class="area-score-value">${score.toFixed(1)}</div>
+                `;
+                areaScoresContainer.appendChild(areaCard);
+            });
+
+            // 레이더 차트 생성
+            createRadarChart(scores.areas);
+
+            // 결과 영역 표시
+            document.getElementById('resultsContainer').style.display = 'block';
+            
+            // 결과 영역으로 스크롤
+            document.getElementById('resultsContainer').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function createRadarChart(areaScores) {
+            const areas = Object.keys(areaScores);
+            const scores = Object.values(areaScores);
+
+            const data = [{
+                type: 'scatterpolar',
+                r: scores,
+                theta: areas,
+                fill: 'toself',
+                fillcolor: 'rgba(52, 152, 219, 0.3)',
+                line: {
+                    color: 'rgb(52, 152, 219)',
+                    width: 3
+                },
+                marker: {
+                    color: 'rgb(52, 152, 219)',
+                    size: 8
+                },
+                name: '현재 점수'
+            }];
+
+            const layout = {
+                polar: {
+                    radialaxis: {
+                        visible: true,
+                        range: [0, 4],
+                        tickfont: { size: 12 },
+                        gridcolor: '#E8E8E8'
+                    },
+                    angularaxis: {
+                        tickfont: { size: 14 }
+                    }
+                },
+                showlegend: false,
+                title: {
+                    text: '영역별 보안 성숙도',
+                    font: { size: 18, color: '#2c3e50' }
+                },
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)'
+            };
+
+            Plotly.newPlot('radarChart', data, layout, {responsive: true});
+        }
+
+        function submitToServer(scores) {
+            document.getElementById('loadingMessage').style.display = 'block';
+
+            const formData = {
+                companyName: document.getElementById('companyName').value,
+                email: document.getElementById('email').value,
+                companySize: document.getElementById('companySize').value,
+                businessType: document.getElementById('businessType').value,
+                overallScore: scores.overall,
+                maturityLevel: scores.maturityLevel.level,
+                identityScore: scores.areas['신원'] || 0,
+                deviceScore: scores.areas['기기 및 엔드포인트'] || 0,
+                networkScore: scores.areas['네트워크'] || 0,
+                systemScore: scores.areas['시스템'] || 0,
+                applicationScore: scores.areas['애플리케이션'] || 0,
+                dataScore: scores.areas['데이터'] || 0,
                 allAnswers: answers
             };
-            
-            document.getElementById('loading').style.display = 'block';
-            document.getElementById('submitBtn').disabled = true;
-            document.getElementById('submitBtn').textContent = '📤 전송 중...';
-            
-            try {
-                console.log('📤 데이터 전송 시작:', data);
+
+            fetch(API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loadingMessage').style.display = 'none';
                 
-                const response = await fetch(WEBAPP_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data)
-                });
-                
-                console.log('📡 응답 상태:', response.status, response.statusText);
-                
-                const result = await response.json();
-                console.log('📥 서버 응답:', result);
-                
-                if (result.success) {
-                    alert('🎉 진단이 완료되었습니다!\n\n📊 최종 점수: ' + totalScore + '/96점\n🏆 성숙도: Level ' + maturityLevel + '\n\n상세한 분석 결과가 ' + email + '로 발송됩니다.');
-                    
-                    document.getElementById('assessmentForm').reset();
-                    document.getElementById('progressFill').style.width = '0%';
-                    document.getElementById('questionCounter').textContent = '진행 상황: 0/24 질문 완료 (0%)';
-                    document.getElementById('resultPreview').style.display = 'none';
+                if (data.success) {
+                    showSuccess('진단 결과가 성공적으로 저장되었습니다!');
                 } else {
-                    alert('❌ 오류가 발생했습니다: ' + result.message);
-                    console.error('서버 오류:', result);
+                    showError('데이터 저장 중 오류가 발생했습니다: ' + data.message);
                 }
-            } catch (error) {
-                console.error('❌ 전송 오류 상세:', error);
-                alert('🌐 네트워크 오류가 발생했습니다.\n\n오류 내용: ' + error.message + '\n\n• F12 키를 눌러 Console 탭에서 상세 오류를 확인해주세요.\n• 인터넷 연결을 확인해주세요.');
-            } finally {
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('submitBtn').disabled = false;
-                document.getElementById('submitBtn').textContent = '📧 진단 완료 및 결과 이메일 받기';
-            }
+            })
+            .catch(error => {
+                document.getElementById('loadingMessage').style.display = 'none';
+                console.error('Error:', error);
+                showError('서버 연결 오류가 발생했습니다. 네트워크 연결을 확인해주세요.');
+            });
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            setTimeout(() => {
+                successDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // 페이지 로드 시 진행률 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            updateProgress();
+            
+            // 기업 정보 입력 시 진행률 업데이트
+            ['companyName', 'email', 'companySize', 'businessType'].forEach(id => {
+                document.getElementById(id).addEventListener('change', updateProgress);
+            });
         });
     </script>
 </body>
