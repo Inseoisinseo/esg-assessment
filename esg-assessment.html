@@ -165,9 +165,24 @@
             cursor: pointer;
             transition: transform 0.3s ease;
             width: 100%;
+            margin: 10px 0;
         }
         
-        .submit-btn:hover {
+        .test-btn {
+            background: #e74c3c;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            margin: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .test-btn.green { background: #27ae60; }
+        .test-btn.purple { background: #9b59b6; }
+        
+        .submit-btn:hover, .test-btn:hover {
             transform: translateY(-2px);
         }
         
@@ -205,6 +220,11 @@
             text-align: center;
             margin-bottom: 20px;
             font-weight: bold;
+        }
+        
+        .test-buttons {
+            text-align: center;
+            margin-bottom: 20px;
         }
     </style>
 </head>
@@ -269,7 +289,14 @@
                     <h2>🔍 보안 성숙도 진단 (총 24개 질문)</h2>
                     <p style="margin-bottom: 20px; color: #666;">각 질문에 대해 현재 상황에 가장 적합한 점수를 선택해주세요.</p>
                     
-                    <!-- 1. 신원 영역 -->
+                    <!-- 테스트 버튼들 -->
+                    <div class="test-buttons">
+                        <button type="button" class="test-btn" onclick="fillTest(1)">🧪 테스트: 모든 질문 1점</button>
+                        <button type="button" class="test-btn green" onclick="fillTest(4)">🏆 테스트: 모든 질문 4점</button>
+                        <button type="button" class="test-btn purple" onclick="fillTestRandom()">🎲 테스트: 랜덤 점수</button>
+                    </div>
+                    
+                    <!-- 신원 영역 -->
                     <div class="question-group">
                         <h3>1. 신원 (Identity) - 4개 질문</h3>
                         
@@ -362,12 +389,12 @@
                         </div>
                     </div>
                     
-                    <!-- 2. 기기 및 엔드포인트 영역 -->
+                    <!-- 기기 및 엔드포인트 영역 -->
                     <div class="question-group">
                         <h3>2. 기기 및 엔드포인트 - 4개 질문</h3>
                         
                         <div class="question">
-                            <p><strong>[5/24]</strong> 모든 기기(PC, 스마트폰, 태블릿 등)의 보안정책 준수 정보를 수집하고 있습니까?</p>
+                            <p><strong>[5/24]</strong> 모든 기기의 보안정책 준수 정보를 수집하고 있습니까?</p>
                             <div class="rating-scale">
                                 <div class="rating-option">
                                     <input type="radio" name="device_q1" value="1" id="dev1_1">
@@ -455,12 +482,12 @@
                         </div>
                     </div>
                     
-                    <!-- 3. 네트워크 영역 -->
+                    <!-- 네트워크 영역 -->
                     <div class="question-group">
                         <h3>3. 네트워크 - 4개 질문</h3>
                         
                         <div class="question">
-                            <p><strong>[9/24]</strong> 경계보안(방화벽) 중심의 네트워크에서 모든 트래픽 모니터링이 가능합니까?</p>
+                            <p><strong>[9/24]</strong> 경계보안 중심 네트워크에서 모든 트래픽 모니터링이 가능합니까?</p>
                             <div class="rating-scale">
                                 <div class="rating-option">
                                     <input type="radio" name="network_q1" value="1" id="net1_1">
@@ -548,7 +575,7 @@
                         </div>
                     </div>
                     
-                    <!-- 4. 시스템 영역 -->
+                    <!-- 시스템 영역 -->
                     <div class="question-group">
                         <h3>4. 시스템 - 4개 질문</h3>
                         
@@ -597,7 +624,7 @@
                         </div>
                         
                         <div class="question">
-                            <p><strong>[15/24]</strong> 온프레미스와 클라우드 시스템에 보안 패치를 자동으로 적용할 수 있습니까?</p>
+                            <p><strong>[15/24]</strong> 보안 패치를 자동으로 적용할 수 있습니까?</p>
                             <div class="rating-scale">
                                 <div class="rating-option">
                                     <input type="radio" name="system_q3" value="1" id="sys3_1">
@@ -619,7 +646,7 @@
                         </div>
                         
                         <div class="question">
-                            <p><strong>[16/24]</strong> 모든 시스템을 실시간으로 모니터링하고 자동 보안 대응이 가능합니까?</p>
+                            <p><strong>[16/24]</strong> 실시간 모니터링하고 자동 보안 대응이 가능합니까?</p>
                             <div class="rating-scale">
                                 <div class="rating-option">
                                     <input type="radio" name="system_q4" value="1" id="sys4_1">
@@ -641,7 +668,7 @@
                         </div>
                     </div>
                     
-                    <!-- 5. 애플리케이션 및 워크로드 영역 -->
+                    <!-- 애플리케이션 영역 -->
                     <div class="question-group">
                         <h3>5. 애플리케이션 및 워크로드 - 4개 질문</h3>
                         
@@ -734,7 +761,7 @@
                         </div>
                     </div>
                     
-                    <!-- 6. 데이터 영역 -->
+                    <!-- 데이터 영역 -->
                     <div class="question-group">
                         <h3>6. 데이터 - 4개 질문</h3>
                         
@@ -844,19 +871,6 @@
                     <p>잠시만 기다려 주세요.</p>
                 </div>
                 
-                <!-- 테스트용 버튼들 -->
-                <div style="margin-bottom: 20px; text-align: center;">
-                    <button type="button" onclick="fillAllOnes()" style="background: #e74c3c; color: white; padding: 10px 20px; border: none; border-radius: 5px; margin: 5px; cursor: pointer;">
-                        🧪 테스트: 모든 질문 1점으로 채우기
-                    </button>
-                    <button type="button" onclick="fillAllFours()" style="background: #27ae60; color: white; padding: 10px 20px; border: none; border-radius: 5px; margin: 5px; cursor: pointer;">
-                        🏆 테스트: 모든 질문 4점으로 채우기
-                    </button>
-                    <button type="button" onclick="fillRandom()" style="background: #9b59b6; color: white; padding: 10px 20px; border: none; border-radius: 5px; margin: 5px; cursor: pointer;">
-                        🎲 테스트: 랜덤 점수로 채우기
-                    </button>
-                </div>
-
                 <button type="submit" class="submit-btn" id="submitBtn">
                     📧 진단 완료 및 결과 이메일 받기
                 </button>
@@ -865,24 +879,63 @@
     </div>
     
     <script>
-        // 웹앱 URL을 여기에 입력하세요
-        const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbz27GQUAoaSr6ixD_BZw_nUmkmcgpz8YjSVl4Hy8awpXW1FQA8U6Ib8OVaOB3PEjqeP/exec
-'; // 실제 웹앱 URL로 변경 필요
+        // 웹앱 URL
+        const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbz27GQUAoaSr6ixD_BZw_nUmkmcgpz8YjSVl4Hy8awpXW1FQA8U6Ib8OVaOB3PEjqeP/exec';
+        
+        // 테스트용 자동 입력 함수
+        function fillTest(score) {
+            // 기업 정보 자동 입력
+            document.getElementById('companyName').value = '테스트기업';
+            document.getElementById('email').value = 'test@example.com';
+            document.getElementById('companySize').value = '2';
+            document.getElementById('businessType').value = '3';
+            
+            // 모든 질문에 지정된 점수로 자동 입력
+            const areas = ['identity', 'device', 'network', 'system', 'application', 'data'];
+            areas.forEach(area => {
+                for (let i = 1; i <= 4; i++) {
+                    const name = area + '_q' + i;
+                    const radio = document.querySelector('input[name="' + name + '"][value="' + score + '"]');
+                    if (radio) radio.checked = true;
+                }
+            });
+            
+            updateProgress();
+            alert('✅ 모든 질문이 ' + score + '점으로 채워졌습니다!');
+        }
+        
+        function fillTestRandom() {
+            // 기업 정보 자동 입력
+            document.getElementById('companyName').value = '테스트기업';
+            document.getElementById('email').value = 'test@example.com';
+            document.getElementById('companySize').value = '2';
+            document.getElementById('businessType').value = '3';
+            
+            // 모든 질문에 랜덤 점수로 자동 입력
+            const areas = ['identity', 'device', 'network', 'system', 'application', 'data'];
+            areas.forEach(area => {
+                for (let i = 1; i <= 4; i++) {
+                    const score = Math.floor(Math.random() * 4) + 1;
+                    const name = area + '_q' + i;
+                    const radio = document.querySelector('input[name="' + name + '"][value="' + score + '"]');
+                    if (radio) radio.checked = true;
+                }
+            });
+            
+            updateProgress();
+            alert('🎲 모든 질문이 랜덤 점수로 채워졌습니다!');
+        }
         
         // 진행률 업데이트
         function updateProgress() {
-            const totalQuestions = 24; // 정확히 24개 질문
+            const totalQuestions = 24;
             const answeredQuestions = document.querySelectorAll('input[type="radio"]:checked').length;
             const progressPercent = (answeredQuestions / totalQuestions) * 100;
             
-            // 진행률 바 업데이트
             document.getElementById('progressFill').style.width = progressPercent + '%';
-            
-            // 질문 카운터 업데이트
             document.getElementById('questionCounter').textContent = 
-                `진행 상황: ${answeredQuestions}/24 질문 완료 (${Math.round(progressPercent)}%)`;
+                '진행 상황: ' + answeredQuestions + '/24 질문 완료 (' + Math.round(progressPercent) + '%)';
             
-            // 미리보기 결과 표시
             if (answeredQuestions > 0) {
                 const totalScore = Array.from(document.querySelectorAll('input[type="radio"]:checked'))
                     .reduce((sum, input) => sum + parseInt(input.value), 0);
@@ -892,20 +945,18 @@
                 const level = averageScore <= 1.5 ? 1 : averageScore <= 2.5 ? 2 : averageScore <= 3.5 ? 3 : 4;
                 const levelNames = ['기존(Traditional)', '초기(Initial)', '향상(Advanced)', '최적화(Optimal)'];
                 
-                // 영역별 점수 계산
                 const areaScores = calculateAreaScores();
                 const areaText = Object.entries(areaScores)
-                    .map(([area, score]) => `${area}: ${score > 0 ? score.toFixed(1) : '미완료'}점`)
+                    .map(([area, score]) => area + ': ' + (score > 0 ? score.toFixed(1) : '미완료') + '점')
                     .join(' | ');
                 
-                document.getElementById('previewScore').textContent = `현재 점수: ${totalScore}점 (예상 총점: ${estimatedTotal}/96점)`;
-                document.getElementById('previewLevel').textContent = `예상 성숙도: Level ${level} (${levelNames[level-1]})`;
+                document.getElementById('previewScore').textContent = '현재 점수: ' + totalScore + '점 (예상 총점: ' + estimatedTotal + '/96점)';
+                document.getElementById('previewLevel').textContent = '예상 성숙도: Level ' + level + ' (' + levelNames[level-1] + ')';
                 document.getElementById('previewAreas').textContent = areaText;
                 document.getElementById('resultPreview').style.display = 'block';
             }
         }
         
-        // 영역별 점수 계산
         function calculateAreaScores() {
             const areas = {
                 '신원': ['identity_q1', 'identity_q2', 'identity_q3', 'identity_q4'],
@@ -917,12 +968,12 @@
             };
             
             const areaScores = {};
-            for (const [areaName, questions] of Object.entries(areas)) {
+            for (const areaName in areas) {
                 let areaTotal = 0;
                 let answeredCount = 0;
                 
-                questions.forEach(questionName => {
-                    const answer = document.querySelector(`input[name="${questionName}"]:checked`);
+                areas[areaName].forEach(questionName => {
+                    const answer = document.querySelector('input[name="' + questionName + '"]:checked');
                     if (answer) {
                         areaTotal += parseInt(answer.value);
                         answeredCount++;
@@ -944,7 +995,6 @@
         document.getElementById('assessmentForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            // 기본 정보 검증
             const companyName = document.getElementById('companyName').value;
             const email = document.getElementById('email').value;
             const companySize = document.getElementById('companySize').value;
@@ -955,31 +1005,24 @@
                 return;
             }
             
-            // 모든 질문 답변 확인
             const totalQuestions = 24;
             const answeredQuestions = document.querySelectorAll('input[type="radio"]:checked').length;
             
             if (answeredQuestions < totalQuestions) {
-                alert(`모든 질문에 답변해주세요. (현재 ${answeredQuestions}/${totalQuestions}개 완료)`);
+                alert('모든 질문에 답변해주세요. (현재 ' + answeredQuestions + '/' + totalQuestions + '개 완료)');
                 return;
             }
             
-            // 점수 계산
             const answers = {};
             let totalScore = 0;
-            
-            // 모든 영역의 답변 수집
-            const questionGroups = [
-                'identity', 'device', 'network', 'system', 'application', 'data'
-            ];
-            
+            const questionGroups = ['identity', 'device', 'network', 'system', 'application', 'data'];
             const areaScores = {};
             
             questionGroups.forEach(group => {
                 let groupScore = 0;
                 for (let i = 1; i <= 4; i++) {
-                    const questionName = `${group}_q${i}`;
-                    const answer = document.querySelector(`input[name="${questionName}"]:checked`);
+                    const questionName = group + '_q' + i;
+                    const answer = document.querySelector('input[name="' + questionName + '"]:checked');
                     if (answer) {
                         const score = parseInt(answer.value);
                         answers[questionName] = score;
@@ -990,11 +1033,9 @@
                 areaScores[group] = groupScore;
             });
             
-            // 성숙도 레벨 계산
             const averageScore = totalScore / 24;
             const maturityLevel = averageScore <= 1.5 ? 1 : averageScore <= 2.5 ? 2 : averageScore <= 3.5 ? 3 : 4;
             
-            // 데이터 준비
             const data = {
                 companyName: companyName,
                 email: email,
@@ -1011,7 +1052,6 @@
                 allAnswers: answers
             };
             
-            // 로딩 표시
             document.getElementById('loading').style.display = 'block';
             document.getElementById('submitBtn').disabled = true;
             document.getElementById('submitBtn').textContent = '📤 전송 중...';
@@ -1019,7 +1059,6 @@
             try {
                 console.log('📤 데이터 전송 시작:', data);
                 
-                // 데이터 전송
                 const response = await fetch(WEBAPP_URL, {
                     method: 'POST',
                     headers: {
@@ -1034,9 +1073,8 @@
                 console.log('📥 서버 응답:', result);
                 
                 if (result.success) {
-                    alert(`🎉 진단이 완료되었습니다!\n\n📊 최종 점수: ${totalScore}/96점\n🏆 성숙도: Level ${maturityLevel}\n\n상세한 분석 결과가 ${email}로 발송됩니다.`);
+                    alert('🎉 진단이 완료되었습니다!\n\n📊 최종 점수: ' + totalScore + '/96점\n🏆 성숙도: Level ' + maturityLevel + '\n\n상세한 분석 결과가 ' + email + '로 발송됩니다.');
                     
-                    // 폼 리셋
                     document.getElementById('assessmentForm').reset();
                     document.getElementById('progressFill').style.width = '0%';
                     document.getElementById('questionCounter').textContent = '진행 상황: 0/24 질문 완료 (0%)';
@@ -1047,7 +1085,7 @@
                 }
             } catch (error) {
                 console.error('❌ 전송 오류 상세:', error);
-                alert(`🌐 네트워크 오류가 발생했습니다.\n\n오류 내용: ${error.message}\n\n• F12 키를 눌러 Console 탭에서 상세 오류를 확인해주세요.\n• 인터넷 연결을 확인해주세요.`);
+                alert('🌐 네트워크 오류가 발생했습니다.\n\n오류 내용: ' + error.message + '\n\n• F12 키를 눌러 Console 탭에서 상세 오류를 확인해주세요.\n• 인터넷 연결을 확인해주세요.');
             } finally {
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('submitBtn').disabled = false;
