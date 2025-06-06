@@ -196,6 +196,16 @@
             color: #27ae60;
             margin-bottom: 10px;
         }
+
+        .question-counter {
+            background: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -209,6 +219,10 @@
         <div class="form-container">
             <div class="progress-bar">
                 <div class="progress-fill" id="progressFill"></div>
+            </div>
+            
+            <div class="question-counter" id="questionCounter">
+                진행 상황: 0/24 질문 완료 (0%)
             </div>
             
             <form id="assessmentForm">
@@ -252,15 +266,15 @@
                 
                 <!-- 진단 질문 섹션 -->
                 <div class="form-section">
-                    <h2>🔍 보안 성숙도 진단</h2>
-                    <p style="margin-bottom: 20px; color: #666;">각 질문에 대해 현재 상황에 가장 적합한 점수를 선택해주세요. (총 24개 질문)</p>
+                    <h2>🔍 보안 성숙도 진단 (총 24개 질문)</h2>
+                    <p style="margin-bottom: 20px; color: #666;">각 질문에 대해 현재 상황에 가장 적합한 점수를 선택해주세요.</p>
                     
-                    <!-- 신원 영역 -->
+                    <!-- 1. 신원 영역 -->
                     <div class="question-group">
-                        <h3>1. 신원 (Identity)</h3>
+                        <h3>1. 신원 (Identity) - 4개 질문</h3>
                         
                         <div class="question">
-                            <p>온프레미스와 클라우드 서비스의 ID 관리를 통합하여 사용하고 있습니까?</p>
+                            <p><strong>[1/24]</strong> 온프레미스와 클라우드 서비스의 ID 관리를 통합하여 사용하고 있습니까?</p>
                             <div class="rating-scale">
                                 <div class="rating-option">
                                     <input type="radio" name="identity_q1" value="1" id="id1_1">
@@ -282,7 +296,7 @@
                         </div>
                         
                         <div class="question">
-                            <p>다단계 인증(MFA)를 사용하고 있습니까?</p>
+                            <p><strong>[2/24]</strong> 다단계 인증(MFA)를 사용하고 있습니까?</p>
                             <div class="rating-scale">
                                 <div class="rating-option">
                                     <input type="radio" name="identity_q2" value="1" id="id2_1">
@@ -304,7 +318,7 @@
                         </div>
                         
                         <div class="question">
-                            <p>클라우드 기반 인증 및 FIDO 기반 인증을 지원합니까?</p>
+                            <p><strong>[3/24]</strong> 클라우드 기반 인증 및 FIDO 기반 인증을 지원합니까?</p>
                             <div class="rating-scale">
                                 <div class="rating-option">
                                     <input type="radio" name="identity_q3" value="1" id="id3_1">
@@ -326,7 +340,7 @@
                         </div>
                         
                         <div class="question">
-                            <p>AI 기반으로 위험도를 자동 판단하여 보안정책을 적용할 수 있습니까?</p>
+                            <p><strong>[4/24]</strong> AI 기반으로 위험도를 자동 판단하여 보안정책을 적용할 수 있습니까?</p>
                             <div class="rating-scale">
                                 <div class="rating-option">
                                     <input type="radio" name="identity_q4" value="1" id="id4_1">
@@ -348,12 +362,12 @@
                         </div>
                     </div>
                     
-                    <!-- 기기 및 엔드포인트 영역 -->
+                    <!-- 2. 기기 및 엔드포인트 영역 -->
                     <div class="question-group">
-                        <h3>2. 기기 및 엔드포인트</h3>
+                        <h3>2. 기기 및 엔드포인트 - 4개 질문</h3>
                         
                         <div class="question">
-                            <p>모든 기기(PC, 스마트폰, 태블릿 등)의 보안정책 준수 정보를 수집하고 있습니까?</p>
+                            <p><strong>[5/24]</strong> 모든 기기(PC, 스마트폰, 태블릿 등)의 보안정책 준수 정보를 수집하고 있습니까?</p>
                             <div class="rating-scale">
                                 <div class="rating-option">
                                     <input type="radio" name="device_q1" value="1" id="dev1_1">
@@ -375,7 +389,7 @@
                         </div>
                         
                         <div class="question">
-                            <p>대부분의 기기에 보안정책을 자동으로 적용하고 있습니까?</p>
+                            <p><strong>[6/24]</strong> 대부분의 기기에 보안정책을 자동으로 적용하고 있습니까?</p>
                             <div class="rating-scale">
                                 <div class="rating-option">
                                     <input type="radio" name="device_q2" value="1" id="dev2_1">
@@ -397,7 +411,7 @@
                         </div>
                         
                         <div class="question">
-                            <p>모든 기기에 대해 위협 탐지 및 자동 대응이 가능합니까?</p>
+                            <p><strong>[7/24]</strong> 모든 기기에 대해 위협 탐지 및 자동 대응이 가능합니까?</p>
                             <div class="rating-scale">
                                 <div class="rating-option">
                                     <input type="radio" name="device_q3" value="1" id="dev3_1">
@@ -419,7 +433,7 @@
                         </div>
                         
                         <div class="question">
-                            <p>기기 보안상태를 실시간으로 모니터링하고 자동 관리가 가능합니까?</p>
+                            <p><strong>[8/24]</strong> 기기 보안상태를 실시간으로 모니터링하고 자동 관리가 가능합니까?</p>
                             <div class="rating-scale">
                                 <div class="rating-option">
                                     <input type="radio" name="device_q4" value="1" id="dev4_1">
@@ -441,12 +455,12 @@
                         </div>
                     </div>
                     
-                    <!-- 네트워크 영역 -->
+                    <!-- 3. 네트워크 영역 -->
                     <div class="question-group">
-                        <h3>3. 네트워크</h3>
+                        <h3>3. 네트워크 - 4개 질문</h3>
                         
                         <div class="question">
-                            <p>경계보안(방화벽) 중심의 네트워크에서 모든 트래픽 모니터링이 가능합니까?</p>
+                            <p><strong>[9/24]</strong> 경계보안(방화벽) 중심의 네트워크에서 모든 트래픽 모니터링이 가능합니까?</p>
                             <div class="rating-scale">
                                 <div class="rating-option">
                                     <input type="radio" name="network_q1" value="1" id="net1_1">
@@ -468,7 +482,7 @@
                         </div>
                         
                         <div class="question">
-                            <p>내부 애플리케이션들 간의 트래픽을 서로 격리하고 있습니까?</p>
+                            <p><strong>[10/24]</strong> 내부 애플리케이션들 간의 트래픽을 서로 격리하고 있습니까?</p>
                             <div class="rating-scale">
                                 <div class="rating-option">
                                     <input type="radio" name="network_q2" value="1" id="net2_1">
@@ -490,7 +504,7 @@
                         </div>
                         
                         <div class="question">
-                            <p>마이크로 세그멘테이션을 통해 각 애플리케이션을 독립적으로 보호하고 있습니까?</p>
+                            <p><strong>[11/24]</strong> 마이크로 세그멘테이션을 통해 각 애플리케이션을 독립적으로 보호하고 있습니까?</p>
                             <div class="rating-scale">
                                 <div class="rating-option">
                                     <input type="radio" name="network_q3" value="1" id="net3_1">
@@ -512,7 +526,7 @@
                         </div>
                         
                         <div class="question">
-                            <p>자동화된 네트워크 보안 정책 배포 및 관리가 가능합니까?</p>
+                            <p><strong>[12/24]</strong> 자동화된 네트워크 보안 정책 배포 및 관리가 가능합니까?</p>
                             <div class="rating-scale">
                                 <div class="rating-option">
                                     <input type="radio" name="network_q4" value="1" id="net4_1">
@@ -534,12 +548,12 @@
                         </div>
                     </div>
                     
-                    <!-- 시스템 영역 -->
+                    <!-- 4. 시스템 영역 -->
                     <div class="question-group">
-                        <h3>4. 시스템</h3>
+                        <h3>4. 시스템 - 4개 질문</h3>
                         
                         <div class="question">
-                            <p>시스템 접근 시 다단계 인증을 사용하고 있습니까? (단순 ID/패스워드만 사용하는 경우 낮은 점수)</p>
+                            <p><strong>[13/24]</strong> 시스템 접근 시 다단계 인증을 사용하고 있습니까?</p>
                             <div class="rating-scale">
                                 <div class="rating-option">
                                     <input type="radio" name="system_q1" value="1" id="sys1_1">
@@ -561,7 +575,7 @@
                         </div>
                         
                         <div class="question">
-                            <p>모든 시스템을 통합적으로 관리하고 있습니까?</p>
+                            <p><strong>[14/24]</strong> 모든 시스템을 통합적으로 관리하고 있습니까?</p>
                             <div class="rating-scale">
                                 <div class="rating-option">
                                     <input type="radio" name="system_q2" value="1" id="sys2_1">
@@ -583,7 +597,7 @@
                         </div>
                         
                         <div class="question">
-                            <p>온프레미스와 클라우드 시스템에 보안 패치를 자동으로 적용할 수 있습니까?</p>
+                            <p><strong>[15/24]</strong> 온프레미스와 클라우드 시스템에 보안 패치를 자동으로 적용할 수 있습니까?</p>
                             <div class="rating-scale">
                                 <div class="rating-option">
                                     <input type="radio" name="system_q3" value="1" id="sys3_1">
@@ -605,7 +619,7 @@
                         </div>
                         
                         <div class="question">
-                            <p>모든 시스템을 실시간으로 모니터링하고 자동 보안 대응이 가능합니까?</p>
+                            <p><strong>[16/24]</strong> 모든 시스템을 실시간으로 모니터링하고 자동 보안 대응이 가능합니까?</p>
                             <div class="rating-scale">
                                 <div class="rating-option">
                                     <input type="radio" name="system_q4" value="1" id="sys4_1">
@@ -627,12 +641,12 @@
                         </div>
                     </div>
                     
-                    <!-- 애플리케이션 및 워크로드 영역 -->
+                    <!-- 5. 애플리케이션 및 워크로드 영역 -->
                     <div class="question-group">
-                        <h3>5. 애플리케이션 및 워크로드</h3>
+                        <h3>5. 애플리케이션 및 워크로드 - 4개 질문</h3>
                         
                         <div class="question">
-                            <p>애플리케이션 접근 권한을 어떻게 관리하고 있습니까?</p>
+                            <p><strong>[17/24]</strong> 애플리케이션 접근 권한을 어떻게 관리하고 있습니까?</p>
                             <div class="rating-scale">
                                 <div class="rating-option">
                                     <input type="radio" name="application_q1" value="1" id="app1_1">
@@ -654,7 +668,7 @@
                         </div>
                         
                         <div class="question">
-                            <p>애플리케이션 개발 시 보안 테스트를 수행하고 있습니까?</p>
+                            <p><strong>[18/24]</strong> 애플리케이션 개발 시 보안 테스트를 수행하고 있습니까?</p>
                             <div class="rating-scale">
                                 <div class="rating-option">
                                     <input type="radio" name="application_q2" value="1" id="app2_1">
@@ -676,7 +690,7 @@
                         </div>
                         
                         <div class="question">
-                            <p>최소권한 원칙으로 애플리케이션 접근을 자동 제어하고 있습니까?</p>
+                            <p><strong>[19/24]</strong> 최소권한 원칙으로 애플리케이션 접근을 자동 제어하고 있습니까?</p>
                             <div class="rating-scale">
                                 <div class="rating-option">
                                     <input type="radio" name="application_q3" value="1" id="app3_1">
@@ -698,7 +712,7 @@
                         </div>
                         
                         <div class="question">
-                            <p>실시간 위험 분석을 통해 애플리케이션 접근을 자동으로 제어할 수 있습니까?</p>
+                            <p><strong>[20/24]</strong> 실시간 위험 분석을 통해 애플리케이션 접근을 자동으로 제어할 수 있습니까?</p>
                             <div class="rating-scale">
                                 <div class="rating-option">
                                     <input type="radio" name="application_q4" value="1" id="app4_1">
@@ -720,12 +734,12 @@
                         </div>
                     </div>
                     
-                    <!-- 데이터 영역 -->
+                    <!-- 6. 데이터 영역 -->
                     <div class="question-group">
-                        <h3>6. 데이터</h3>
+                        <h3>6. 데이터 - 4개 질문</h3>
                         
                         <div class="question">
-                            <p>데이터 분류 및 접근권한을 어떻게 관리하고 있습니까?</p>
+                            <p><strong>[21/24]</strong> 데이터 분류 및 접근권한을 어떻게 관리하고 있습니까?</p>
                             <div class="rating-scale">
                                 <div class="rating-option">
                                     <input type="radio" name="data_q1" value="1" id="data1_1">
@@ -747,7 +761,7 @@
                         </div>
                         
                         <div class="question">
-                            <p>중요 데이터에 대해 자동 분류 및 접근 제어가 가능합니까?</p>
+                            <p><strong>[22/24]</strong> 중요 데이터에 대해 자동 분류 및 접근 제어가 가능합니까?</p>
                             <div class="rating-scale">
                                 <div class="rating-option">
                                     <input type="radio" name="data_q2" value="1" id="data2_1">
@@ -769,7 +783,7 @@
                         </div>
                         
                         <div class="question">
-                            <p>최소권한 원칙으로 데이터 접근을 자동 관리하고 있습니까?</p>
+                            <p><strong>[23/24]</strong> 최소권한 원칙으로 데이터 접근을 자동 관리하고 있습니까?</p>
                             <div class="rating-scale">
                                 <div class="rating-option">
                                     <input type="radio" name="data_q3" value="1" id="data3_1">
@@ -791,7 +805,7 @@
                         </div>
                         
                         <div class="question">
-                            <p>AI를 이용하여 실시간으로 데이터를 분류하고 접근을 제어하고 있습니까?</p>
+                            <p><strong>[24/24]</strong> AI를 이용하여 실시간으로 데이터를 분류하고 접근을 제어하고 있습니까?</p>
                             <div class="rating-scale">
                                 <div class="rating-option">
                                     <input type="radio" name="data_q4" value="1" id="data4_1">
@@ -813,7 +827,7 @@
                         </div>
                     </div>
                     
-                    <!-- 간단한 미리보기 결과 -->
+                    <!-- 미리보기 결과 -->
                     <div class="result-preview" id="resultPreview">
                         <h3>📊 진단 결과 미리보기</h3>
                         <p id="previewScore">현재까지 점수: 0/96점</p>
@@ -839,16 +853,20 @@
     
     <script>
         // 웹앱 URL을 여기에 입력하세요
-        const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbynWzsXVRC4qZTHLcLDhKAk-w9meBBWCDaLufDgMbDa14x-tRasMmNruUxf5fq98qro/exec
-'; // 실제 웹앱 URL로 변경 필요
+        const WEBAPP_URL = 'YOUR_WEBAPP_URL_HERE'; // 실제 웹앱 URL로 변경 필요
         
         // 진행률 업데이트
         function updateProgress() {
-            const totalQuestions = 24; // 6개 영역 × 4개 질문
+            const totalQuestions = 24; // 정확히 24개 질문
             const answeredQuestions = document.querySelectorAll('input[type="radio"]:checked').length;
             const progressPercent = (answeredQuestions / totalQuestions) * 100;
             
+            // 진행률 바 업데이트
             document.getElementById('progressFill').style.width = progressPercent + '%';
+            
+            // 질문 카운터 업데이트
+            document.getElementById('questionCounter').textContent = 
+                `진행 상황: ${answeredQuestions}/24 질문 완료 (${Math.round(progressPercent)}%)`;
             
             // 미리보기 결과 표시
             if (answeredQuestions > 0) {
@@ -1002,6 +1020,7 @@
                     // 폼 리셋
                     document.getElementById('assessmentForm').reset();
                     document.getElementById('progressFill').style.width = '0%';
+                    document.getElementById('questionCounter').textContent = '진행 상황: 0/24 질문 완료 (0%)';
                     document.getElementById('resultPreview').style.display = 'none';
                 } else {
                     alert('❌ 오류가 발생했습니다: ' + result.message);
