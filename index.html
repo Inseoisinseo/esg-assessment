@@ -77,6 +77,45 @@
             opacity: 0.3;
         }
 
+        /* 외교부 로고 스타일 */
+        .mofa-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .mofa-symbol {
+            width: 60px;
+            height: 60px;
+            position: relative;
+        }
+
+        .mofa-symbol svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .mofa-text {
+            text-align: left;
+        }
+
+        .mofa-text-ko {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #1a3a52;
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .mofa-text-en {
+            font-size: 0.9em;
+            color: #666;
+            margin: 0;
+            line-height: 1.2;
+        }
+
         .header h1 {
             color: #2e7d32;
             font-size: 2.2em;
@@ -555,6 +594,19 @@
                 padding: 8px 15px;
             }
             
+            .mofa-symbol {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .mofa-text-ko {
+                font-size: 1.2em;
+            }
+            
+            .mofa-text-en {
+                font-size: 0.8em;
+            }
+            
             .visualization-grid {
                 grid-template-columns: 1fr;
             }
@@ -642,6 +694,23 @@
         <!-- 메인 페이지 -->
         <div class="page active" id="mainPage">
             <div class="header">
+                <!-- 외교부 로고 추가 -->
+                <div class="mofa-logo">
+                    <div class="mofa-symbol">
+                        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                            <!-- 외교부 태극 문양 -->
+                            <circle cx="50" cy="35" r="25" fill="#1a3a52"/>
+                            <path d="M50,10 A25,25 0 0,1 50,60 A12.5,12.5 0 0,1 50,35 A12.5,12.5 0 0,0 50,10" fill="#1a3a52"/>
+                            <path d="M50,10 A25,25 0 0,0 50,60 A12.5,12.5 0 0,0 50,35 A12.5,12.5 0 0,1 50,10" fill="#d32f2f"/>
+                            <circle cx="50" cy="22.5" r="6" fill="#d32f2f"/>
+                            <circle cx="50" cy="47.5" r="6" fill="#1a3a52"/>
+                        </svg>
+                    </div>
+                    <div class="mofa-text">
+                        <p class="mofa-text-ko">외교부</p>
+                        <p class="mofa-text-en">Ministry of<br>Foreign Affairs</p>
+                    </div>
+                </div>
                 <h1><span class="eco-icon">🌱</span>ESG 보안 성숙도 진단</h1>
                 <p><span class="eco-icon">🔐</span>제로트러스트 기반 기업 보안 평가</p>
                 <div class="badge">
@@ -726,6 +795,23 @@
         <!-- 기업 정보 입력 페이지 -->
         <div class="page" id="companyInfoPage">
             <div class="header">
+                <!-- 외교부 로고 추가 -->
+                <div class="mofa-logo">
+                    <div class="mofa-symbol">
+                        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                            <!-- 외교부 태극 문양 -->
+                            <circle cx="50" cy="35" r="25" fill="#1a3a52"/>
+                            <path d="M50,10 A25,25 0 0,1 50,60 A12.5,12.5 0 0,1 50,35 A12.5,12.5 0 0,0 50,10" fill="#1a3a52"/>
+                            <path d="M50,10 A25,25 0 0,0 50,60 A12.5,12.5 0 0,0 50,35 A12.5,12.5 0 0,1 50,10" fill="#d32f2f"/>
+                            <circle cx="50" cy="22.5" r="6" fill="#d32f2f"/>
+                            <circle cx="50" cy="47.5" r="6" fill="#1a3a52"/>
+                        </svg>
+                    </div>
+                    <div class="mofa-text">
+                        <p class="mofa-text-ko">외교부</p>
+                        <p class="mofa-text-en">Ministry of<br>Foreign Affairs</p>
+                    </div>
+                </div>
                 <h1><span class="eco-icon">🏢</span>기업 정보 입력</h1>
                 <p>정확한 진단을 위한 기본 정보</p>
             </div>
@@ -816,6 +902,23 @@
         <!-- 결과 페이지 -->
         <div class="page" id="resultsPage">
             <div class="header">
+                <!-- 외교부 로고 추가 -->
+                <div class="mofa-logo">
+                    <div class="mofa-symbol">
+                        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                            <!-- 외교부 태극 문양 -->
+                            <circle cx="50" cy="35" r="25" fill="#1a3a52"/>
+                            <path d="M50,10 A25,25 0 0,1 50,60 A12.5,12.5 0 0,1 50,35 A12.5,12.5 0 0,0 50,10" fill="#1a3a52"/>
+                            <path d="M50,10 A25,25 0 0,0 50,60 A12.5,12.5 0 0,0 50,35 A12.5,12.5 0 0,1 50,10" fill="#d32f2f"/>
+                            <circle cx="50" cy="22.5" r="6" fill="#d32f2f"/>
+                            <circle cx="50" cy="47.5" r="6" fill="#1a3a52"/>
+                        </svg>
+                    </div>
+                    <div class="mofa-text">
+                        <p class="mofa-text-ko">외교부</p>
+                        <p class="mofa-text-en">Ministry of<br>Foreign Affairs</p>
+                    </div>
+                </div>
                 <h1><span class="eco-icon">📊</span>진단 결과</h1>
                 <p>ESG 보안 성숙도 진단 결과</p>
             </div>
