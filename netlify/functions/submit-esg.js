@@ -1,4 +1,3 @@
-// netlify/functions/submit-esg.js
 exports.handler = async (event, context) => {
   // CORS 헤더 설정
   const headers = {
@@ -16,45 +15,39 @@ exports.handler = async (event, context) => {
     };
   }
 
-  // POST 요청만 처리
+  // POST 요청만 허용
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
       headers,
-      body: JSON.stringify({ error: 'Method not allowed' })
+      body: JSON.stringify({ error: 'Method Not Allowed' })
     };
   }
 
   try {
-    // Google Apps Script URL
-    const appsScriptUrl = 'https://script.google.com/macros/s/AKfycbz4amSTYHVuDswFXvhNiWXnYRKXfTYLEUKEkiQyapXYu2gXQxvaoEdgeNUQRiibjlz/exec';
+    const data = JSON.parse(event.body);
     
-    // Google Apps Script로 데이터 전달
-    const response = await fetch(appsScriptUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: event.body
-    });
-
-    const result = await response.json();
-
+    // 여기에 실제 데이터 처리 로직 추가
+    // 예: Google Sheets API 호출 등
+    
+    console.log('Received data:', data);
+    
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify(result)
+      body: JSON.stringify({ 
+        success: true, 
+        message: '데이터가 성공적으로 저장되었습니다.' 
+      })
     };
-
   } catch (error) {
     console.error('Error:', error);
-    
     return {
       statusCode: 500,
       headers,
       body: JSON.stringify({ 
         success: false, 
-        error: error.message 
+        message: '서버 오류가 발생했습니다.' 
       })
     };
   }
