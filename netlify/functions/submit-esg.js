@@ -27,18 +27,23 @@ exports.handler = async (event, context) => {
   try {
     const data = JSON.parse(event.body);
     
-    // 여기에 실제 데이터 처리 로직 추가
-    // 예: Google Sheets API 호출 등
+    // Google Sheets API 호출
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyI3i2atkJB7z6BFNdLZp1S_lC6hELTQJ_9Dgiq6QAwbii0rC_yxS6OgVRyYqy8vEjV/exec';
     
-    console.log('Received data:', data);
+    const response = await fetch(GOOGLE_SCRIPT_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data)
+    });
+    
+    const result = await response.json();
     
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify({ 
-        success: true, 
-        message: '데이터가 성공적으로 저장되었습니다.' 
-      })
+      body: JSON.stringify(result)
     };
   } catch (error) {
     console.error('Error:', error);
@@ -47,7 +52,8 @@ exports.handler = async (event, context) => {
       headers,
       body: JSON.stringify({ 
         success: false, 
-        message: '서버 오류가 발생했습니다.' 
+        message: '서버 오류가 발생했습니다.',
+        error: error.message 
       })
     };
   }
