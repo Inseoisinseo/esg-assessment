@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ESG 보안 성숙도 진단 시스템</title>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>">
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
@@ -852,7 +853,10 @@
     </div>
 
     <script>
-        // ✅ Netlify Functions URL로 설정
+        // ✅ 테스트용 로컬 URL (개발 중에는 이것을 사용)
+        // const API_URL = 'http://localhost:8888/.netlify/functions/submit-esg';
+        
+        // ✅ 프로덕션 URL (배포 후에는 이것을 사용)
         const API_URL = '/.netlify/functions/submit-esg';
         
         // 현재 상태 관리
