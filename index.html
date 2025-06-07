@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESG 보안 성숙도 진단 설문</title>
+    <title>ESG 보안 성숙도 진단 시스템</title>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
             margin: 0;
@@ -13,131 +14,305 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', 'Malgun Gothic', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
-            color: #333;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #2d5016;
+            background: linear-gradient(135deg, #a8e6cf 0%, #88c999 50%, #4caf50 100%);
             min-height: 100vh;
+            position: relative;
+        }
+
+        /* 환경 친화적 배경 패턴 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(76, 175, 80, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(139, 195, 74, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(102, 187, 106, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
         }
 
         .container {
-            max-width: 900px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
+            position: relative;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
         }
 
         .header {
-            background: white;
-            padding: 40px;
+            background: linear-gradient(135deg, #ffffff 0%, #f1f8e9 100%);
+            padding: 30px 20px;
             text-align: center;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-radius: 20px;
+            margin-bottom: 20px;
+            box-shadow: 
+                0 20px 40px rgba(76, 175, 80, 0.15),
+                0 8px 16px rgba(76, 175, 80, 0.1);
+            border: 2px solid rgba(76, 175, 80, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '🌱';
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 2em;
+            opacity: 0.3;
         }
 
         .header h1 {
-            color: #2c3e50;
-            font-size: 2.5em;
+            color: #2e7d32;
+            font-size: 2.2em;
             margin-bottom: 10px;
             font-weight: 700;
+            background: linear-gradient(135deg, #2e7d32, #4caf50);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .header p {
-            color: #7f8c8d;
-            font-size: 1.2em;
-            margin-bottom: 20px;
+            color: #558b2f;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            font-weight: 500;
         }
 
         .badge {
             display: inline-block;
-            background: linear-gradient(45deg, #3498db, #2980b9);
+            background: linear-gradient(135deg, #4caf50, #66bb6a);
             color: white;
-            padding: 10px 25px;
-            border-radius: 25px;
+            padding: 10px 20px;
+            border-radius: 30px;
             font-weight: bold;
             font-size: 0.9em;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.2);
         }
 
-        .form-container {
-            background: white;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        /* 시각화 섹션 */
+        .visualization-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
             margin-bottom: 30px;
         }
 
-        .section {
-            margin-bottom: 40px;
+        .viz-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f9fbe7 100%);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(76, 175, 80, 0.1);
+            border: 2px solid rgba(139, 195, 74, 0.1);
         }
 
-        .section h2 {
-            color: #2c3e50;
+        .viz-card h3 {
+            color: #2e7d32;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .chart-small {
+            height: 250px;
+        }
+
+        /* 통계 카드 간소화 */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card-mini {
+            background: linear-gradient(135deg, #e8f5e8, #f1f8e9);
+            padding: 20px 15px;
+            border-radius: 12px;
+            text-align: center;
+            border-left: 4px solid #4caf50;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card-mini:hover {
+            transform: translateY(-3px);
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2e7d32;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #558b2f;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        /* 제로트러스트 인포그래픽 */
+        .infographic-section {
+            background: linear-gradient(135deg, #ffffff 0%, #f1f8e9 100%);
+            padding: 30px 20px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 15px 30px rgba(76, 175, 80, 0.1);
+        }
+
+        .infographic-title {
+            text-align: center;
+            color: #2e7d32;
             font-size: 1.8em;
-            margin-bottom: 25px;
-            padding-bottom: 10px;
-            border-bottom: 3px solid #3498db;
+            margin-bottom: 20px;
+        }
+
+        .zt-principles {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .zt-item {
+            text-align: center;
+            padding: 15px 10px;
+            background: linear-gradient(135deg, #f1f8e9, #ffffff);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .zt-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(76, 175, 80, 0.15);
+        }
+
+        .zt-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .zt-label {
+            color: #2e7d32;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        /* 폼 스타일 개선 */
+        .form-container {
+            background: linear-gradient(135deg, #ffffff 0%, #f9fbe7 100%);
+            padding: 30px 20px;
+            border-radius: 20px;
+            box-shadow: 
+                0 25px 50px rgba(76, 175, 80, 0.15),
+                0 10px 20px rgba(76, 175, 80, 0.1);
+            margin-bottom: 30px;
+            border: 2px solid rgba(139, 195, 74, 0.1);
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, #4caf50, #66bb6a);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .section-header h2 {
+            font-size: 1.6em;
+            margin-bottom: 8px;
+        }
+
+        .section-description {
+            background: #f1f8e9;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #4caf50;
+            font-size: 0.95em;
         }
 
         .form-group {
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         .form-group label {
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
-            color: #34495e;
-            font-size: 1.1em;
+            color: #2e7d32;
+            font-size: 1em;
         }
 
         .form-group input,
         .form-group select {
             width: 100%;
             padding: 12px 15px;
-            border: 2px solid #e1e8ed;
-            border-radius: 8px;
+            border: 2px solid #c8e6c9;
+            border-radius: 10px;
             font-size: 1em;
             transition: all 0.3s ease;
+            background: #fafafa;
         }
 
         .form-group input:focus,
         .form-group select:focus {
             outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+            border-color: #4caf50;
+            box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.1);
+            background: #ffffff;
         }
 
+        /* 질문 카드 모바일 최적화 */
         .question-card {
-            background: #f8f9fa;
-            padding: 25px;
-            border-radius: 12px;
+            background: linear-gradient(135deg, #f1f8e9 0%, #ffffff 100%);
+            padding: 20px;
+            border-radius: 16px;
             margin-bottom: 20px;
-            border-left: 5px solid #3498db;
-            transition: transform 0.2s ease;
+            border-left: 6px solid #4caf50;
+            transition: all 0.3s ease;
         }
 
         .question-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 20px rgba(76, 175, 80, 0.15);
         }
 
         .question-text {
-            font-size: 1.1em;
+            font-size: 1.05em;
             font-weight: 600;
-            color: #2c3e50;
+            color: #2e7d32;
             margin-bottom: 15px;
             line-height: 1.5;
         }
 
+        /* 평가 옵션 모바일 최적화 */
         .rating-container {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
         }
 
         .rating-option {
-            flex: 1;
-            min-width: 120px;
+            position: relative;
         }
 
         .rating-option input[type="radio"] {
@@ -146,136 +321,164 @@
 
         .rating-option label {
             display: block;
-            padding: 12px;
-            background: white;
-            border: 2px solid #e1e8ed;
-            border-radius: 8px;
+            padding: 12px 8px;
+            background: linear-gradient(135deg, #ffffff, #f8f8f8);
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
+            font-size: 0.9em;
             font-weight: 500;
         }
 
         .rating-option input[type="radio"]:checked + label {
-            background: #3498db;
+            background: linear-gradient(135deg, #4caf50, #66bb6a);
             color: white;
-            border-color: #2980b9;
+            border-color: #2e7d32;
             transform: scale(1.05);
+            box-shadow: 0 6px 15px rgba(76, 175, 80, 0.3);
         }
 
         .rating-option label:hover {
-            border-color: #3498db;
-            background: #ecf0f1;
+            border-color: #4caf50;
+            background: linear-gradient(135deg, #e8f5e8, #f1f8e9);
         }
 
         .progress-container {
-            background: #ecf0f1;
+            background: linear-gradient(135deg, #e8f5e8, #f1f8e9);
             height: 10px;
-            border-radius: 5px;
-            margin: 30px 0;
+            border-radius: 8px;
+            margin: 20px 0;
             overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(76, 175, 80, 0.1);
         }
 
         .progress-bar {
             height: 100%;
-            background: linear-gradient(90deg, #3498db, #2980b9);
+            background: linear-gradient(90deg, #4caf50, #66bb6a, #8bc34a);
             width: 0%;
-            transition: width 0.3s ease;
-            border-radius: 5px;
+            transition: width 0.4s ease;
+            border-radius: 8px;
         }
 
         .progress-text {
             text-align: center;
             margin-top: 10px;
             font-weight: 600;
-            color: #34495e;
+            color: #2e7d32;
+            font-size: 1em;
         }
 
         .btn {
-            background: linear-gradient(45deg, #3498db, #2980b9);
+            background: linear-gradient(135deg, #4caf50, #66bb6a);
             color: white;
-            padding: 15px 40px;
+            padding: 15px 30px;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 1.1em;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            display: block;
-            margin: 30px auto;
-            min-width: 200px;
+            margin: 10px;
+            min-width: 150px;
+            box-shadow: 0 6px 15px rgba(76, 175, 80, 0.3);
         }
 
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+            box-shadow: 0 10px 25px rgba(76, 175, 80, 0.4);
+            background: linear-gradient(135deg, #2e7d32, #4caf50);
         }
 
         .btn:disabled {
-            background: #bdc3c7;
+            background: linear-gradient(135deg, #a5d6a7, #c8e6c9);
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
         }
 
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d, #868e96);
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #5a6268, #6c757d);
+        }
+
+        .navigation-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        /* 결과 페이지 */
         .results-container {
             display: none;
-            background: white;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, #ffffff 0%, #f1f8e9 100%);
+            padding: 30px 20px;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(76, 175, 80, 0.15);
             margin-top: 30px;
+            border: 2px solid rgba(139, 195, 74, 0.1);
         }
 
         .score-display {
             text-align: center;
-            padding: 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #4caf50 0%, #66bb6a 50%, #8bc34a 100%);
             color: white;
-            border-radius: 12px;
-            margin-bottom: 30px;
+            border-radius: 16px;
+            margin-bottom: 25px;
         }
 
         .score-number {
-            font-size: 4em;
+            font-size: 3.5em;
             font-weight: bold;
             margin-bottom: 10px;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
 
         .score-label {
-            font-size: 1.5em;
-            opacity: 0.9;
-        }
-
-        .chart-container {
-            margin: 30px 0;
-            min-height: 400px;
+            font-size: 1.3em;
+            opacity: 0.95;
+            font-weight: 500;
         }
 
         .area-scores {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-top: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 25px;
         }
 
         .area-score-card {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
+            background: linear-gradient(135deg, #f1f8e9 0%, #ffffff 100%);
+            padding: 20px 15px;
+            border-radius: 12px;
             text-align: center;
-            border-left: 5px solid #3498db;
+            border-left: 5px solid #4caf50;
+            transition: all 0.3s ease;
+        }
+
+        .area-score-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(76, 175, 80, 0.15);
         }
 
         .area-score-card h3 {
-            color: #2c3e50;
+            color: #2e7d32;
             margin-bottom: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
         }
 
         .area-score-value {
             font-size: 2em;
             font-weight: bold;
-            color: #3498db;
+            color: #4caf50;
         }
 
         .hidden {
@@ -284,15 +487,15 @@
 
         .loading {
             text-align: center;
-            padding: 20px;
+            padding: 30px;
         }
 
         .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3498db;
+            border: 4px solid #e8f5e8;
+            border-top: 4px solid #4caf50;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             animation: spin 1s linear infinite;
             margin: 0 auto 20px;
         }
@@ -303,76 +506,245 @@
         }
 
         .error-message {
-            background: #e74c3c;
+            background: linear-gradient(135deg, #f44336, #e57373);
             color: white;
             padding: 15px;
-            border-radius: 8px;
+            border-radius: 10px;
             margin: 20px 0;
             text-align: center;
             display: none;
         }
 
         .success-message {
-            background: #27ae60;
+            background: linear-gradient(135deg, #4caf50, #66bb6a);
             color: white;
             padding: 15px;
-            border-radius: 8px;
+            border-radius: 10px;
             margin: 20px 0;
             text-align: center;
             display: none;
         }
 
+        .eco-icon {
+            display: inline-block;
+            margin-right: 5px;
+            font-size: 1.1em;
+        }
+
+        /* 반응형 디자인 */
         @media (max-width: 768px) {
             .container {
                 padding: 10px;
             }
             
-            .header, .form-container {
-                padding: 20px;
+            .header {
+                padding: 20px 15px;
             }
             
             .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .header p {
+                font-size: 1em;
+            }
+            
+            .badge {
+                font-size: 0.85em;
+                padding: 8px 15px;
+            }
+            
+            .visualization-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .zt-principles {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .zt-icon {
                 font-size: 2em;
             }
             
-            .rating-container {
-                flex-direction: column;
+            .zt-label {
+                font-size: 0.85em;
             }
             
-            .rating-option {
-                min-width: auto;
+            .rating-container {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .rating-option label {
+                padding: 10px 5px;
+                font-size: 0.85em;
+            }
+            
+            .navigation-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 200px;
+                padding: 12px 20px;
+                font-size: 1em;
+            }
+            
+            .question-text {
+                font-size: 1em;
+            }
+            
+            .section-description {
+                font-size: 0.9em;
+                padding: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-row {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .stat-number {
+                font-size: 1.6em;
+            }
+            
+            .stat-label {
+                font-size: 0.8em;
+            }
+            
+            .zt-principles {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .area-scores {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .area-score-card {
+                padding: 15px 10px;
+            }
+            
+            .area-score-card h3 {
+                font-size: 0.95em;
+            }
+            
+            .area-score-value {
+                font-size: 1.6em;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>🔐 ESG 보안 성숙도 진단</h1>
-            <p>제로트러스트 기반 기업 보안 성숙도 평가</p>
-            <div class="badge">ESG 협력 네트워크 구축 및 수출기업 성장 지원 AI 플랫폼</div>
+        <!-- 메인 페이지 -->
+        <div class="page active" id="mainPage">
+            <div class="header">
+                <h1><span class="eco-icon">🌱</span>ESG 보안 성숙도 진단</h1>
+                <p><span class="eco-icon">🔐</span>제로트러스트 기반 기업 보안 평가</p>
+                <div class="badge">
+                    <span class="eco-icon">🌍</span>ESG 협력 네트워크 플랫폼
+                </div>
+            </div>
+
+            <!-- 핵심 통계 카드 -->
+            <div class="stats-row">
+                <div class="stat-card-mini">
+                    <div class="stat-number">43.9%</div>
+                    <div class="stat-label">ESG 미도입</div>
+                </div>
+                <div class="stat-card-mini">
+                    <div class="stat-number">36.1%</div>
+                    <div class="stat-label">예산 부족</div>
+                </div>
+                <div class="stat-card-mini">
+                    <div class="stat-number">8.3%</div>
+                    <div class="stat-label">전담 인력</div>
+                </div>
+                <div class="stat-card-mini">
+                    <div class="stat-number">488만$</div>
+                    <div class="stat-label">유출 비용</div>
+                </div>
+            </div>
+
+            <!-- 시각화 차트 그리드 -->
+            <div class="visualization-grid">
+                <div class="viz-card">
+                    <h3>🏢 ESG 경영 도입 현황</h3>
+                    <div id="esgPieChart" class="chart-small"></div>
+                </div>
+                <div class="viz-card">
+                    <h3>📊 업종별 ESG 도입률</h3>
+                    <div id="industryBarChart" class="chart-small"></div>
+                </div>
+                <div class="viz-card">
+                    <h3>📈 연도별 ESG 성장 추이</h3>
+                    <div id="trendLineChart" class="chart-small"></div>
+                </div>
+            </div>
+
+            <!-- 제로트러스트 인포그래픽 -->
+            <div class="infographic-section">
+                <h2 class="infographic-title">🛡️ 제로트러스트 6대 핵심 영역</h2>
+                <div class="zt-principles">
+                    <div class="zt-item">
+                        <span class="zt-icon">👤</span>
+                        <div class="zt-label">신원</div>
+                    </div>
+                    <div class="zt-item">
+                        <span class="zt-icon">📱</span>
+                        <div class="zt-label">기기</div>
+                    </div>
+                    <div class="zt-item">
+                        <span class="zt-icon">🌐</span>
+                        <div class="zt-label">네트워크</div>
+                    </div>
+                    <div class="zt-item">
+                        <span class="zt-icon">💻</span>
+                        <div class="zt-label">시스템</div>
+                    </div>
+                    <div class="zt-item">
+                        <span class="zt-icon">📋</span>
+                        <div class="zt-label">애플리케이션</div>
+                    </div>
+                    <div class="zt-item">
+                        <span class="zt-icon">🔒</span>
+                        <div class="zt-label">데이터</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="navigation-buttons">
+                <button class="btn" onclick="showPage('companyInfoPage')">
+                    <span class="eco-icon">🚀</span>진단 시작
+                </button>
+            </div>
         </div>
 
-        <div class="form-container">
-            <form id="esgForm">
-                <!-- 기업 정보 섹션 -->
-                <div class="section">
-                    <h2>📋 기업 정보</h2>
-                    
+        <!-- 기업 정보 입력 페이지 -->
+        <div class="page" id="companyInfoPage">
+            <div class="header">
+                <h1><span class="eco-icon">🏢</span>기업 정보 입력</h1>
+                <p>정확한 진단을 위한 기본 정보</p>
+            </div>
+
+            <div class="form-container">
+                <form id="companyForm">
                     <div class="form-group">
-                        <label for="companyName">기업명 *</label>
-                        <input type="text" id="companyName" name="companyName" required>
+                        <label for="companyName"><span class="eco-icon">🏷️</span>기업명 *</label>
+                        <input type="text" id="companyName" name="companyName" required placeholder="기업명 입력">
                     </div>
                     
                     <div class="form-group">
-                        <label for="email">이메일 주소 *</label>
-                        <input type="email" id="email" name="email" required>
+                        <label for="email"><span class="eco-icon">📧</span>이메일 *</label>
+                        <input type="email" id="email" name="email" required placeholder="email@company.com">
                     </div>
                     
                     <div class="form-group">
-                        <label for="companySize">기업 규모 *</label>
+                        <label for="companySize"><span class="eco-icon">👥</span>기업 규모 *</label>
                         <select id="companySize" name="companySize" required>
-                            <option value="">선택해주세요</option>
+                            <option value="">선택하세요</option>
                             <option value="1">소기업 (50명 미만)</option>
                             <option value="2">중소기업 (50-299명)</option>
                             <option value="3">중견기업 (300-999명)</option>
@@ -381,243 +753,361 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="businessType">업태/업종 *</label>
+                        <label for="businessType"><span class="eco-icon">🏭</span>업종 *</label>
                         <select id="businessType" name="businessType" required>
-                            <option value="">선택해주세요</option>
-                            <option value="1">고위험군 (금융, 의료, 에너지, 국방)</option>
-                            <option value="2">중위험군 (IT/소프트웨어, 전자통신, 화학)</option>
-                            <option value="3">제조업군 (자동차, 기계, 섬유, 식품)</option>
-                            <option value="4">서비스군 (유통, 물류, 교육, 컨설팅)</option>
-                            <option value="5">전통업군 (건설, 부동산, 농업, 요식업)</option>
+                            <option value="">선택하세요</option>
+                            <option value="1">고위험군 (금융/의료/에너지)</option>
+                            <option value="2">중위험군 (IT/전자통신)</option>
+                            <option value="3">제조업군 (자동차/기계)</option>
+                            <option value="4">서비스군 (유통/물류)</option>
+                            <option value="5">전통업군 (건설/농업)</option>
                         </select>
                     </div>
-                </div>
+                </form>
 
-                <!-- 진행률 표시 -->
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="showPage('mainPage')">
+                        <span class="eco-icon">⬅️</span>이전
+                    </button>
+                    <button class="btn" onclick="startAssessment()">
+                        <span class="eco-icon">▶️</span>진단 시작
+                    </button>
+                </div>
+            </div>
+
+            <div class="error-message" id="companyErrorMessage"></div>
+        </div>
+
+        <!-- 질문 페이지들 -->
+        <div class="page" id="questionPage">
+            <div class="section-header">
+                <h2 id="sectionTitle">영역 진단</h2>
+                <p id="sectionSubtitle">현재 영역</p>
+            </div>
+
+            <div class="section-description" id="sectionDescription">
+                <!-- 영역별 설명이 여기에 표시됩니다 -->
+            </div>
+
+            <div class="form-container">
                 <div class="progress-container">
                     <div class="progress-bar" id="progressBar"></div>
                 </div>
-                <div class="progress-text" id="progressText">기업정보 입력 중...</div>
+                <div class="progress-text" id="progressText">진행률: 0%</div>
 
-                <!-- 보안 진단 질문 섹션 -->
-                <div class="section" id="questionsSection" style="display: none;">
-                    <h2>🔒 보안 성숙도 진단 (24문항)</h2>
-                    <div id="questionsContainer"></div>
+                <div id="questionsContainer">
+                    <!-- 질문들이 여기에 동적으로 생성됩니다 -->
                 </div>
 
-                <button type="button" class="btn" id="startBtn">진단 시작</button>
-                <button type="button" class="btn hidden" id="submitBtn">진단 완료</button>
-            </form>
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="previousSection()" id="prevBtn">
+                        <span class="eco-icon">⬅️</span>이전
+                    </button>
+                    <button class="btn" onclick="nextSection()" id="nextBtn">
+                        <span class="eco-icon">▶️</span>다음
+                    </button>
+                </div>
+            </div>
 
-            <div class="error-message" id="errorMessage"></div>
-            <div class="success-message" id="successMessage"></div>
+            <div class="error-message" id="questionErrorMessage"></div>
+        </div>
+
+        <!-- 결과 페이지 -->
+        <div class="page" id="resultsPage">
+            <div class="header">
+                <h1><span class="eco-icon">📊</span>진단 결과</h1>
+                <p>ESG 보안 성숙도 진단 결과</p>
+            </div>
+
+            <div class="results-container" style="display: block;">
+                <div class="score-display" id="scoreDisplay">
+                    <div class="score-number" id="overallScore">0.0</div>
+                    <div class="score-label" id="maturityLevel">Level 1 - 기존</div>
+                </div>
+                
+                <div class="chart-container">
+                    <div id="radarChart"></div>
+                </div>
+                
+                <div class="area-scores" id="areaScores"></div>
+
+                <div class="navigation-buttons">
+                    <button class="btn" onclick="showPage('mainPage')">
+                        <span class="eco-icon">🏠</span>처음으로
+                    </button>
+                    <button class="btn" onclick="restartAssessment()">
+                        <span class="eco-icon">🔄</span>다시 진단
+                    </button>
+                </div>
+            </div>
+
             <div class="loading" id="loadingMessage" style="display: none;">
                 <div class="spinner"></div>
-                <p>진단 결과를 분석 중입니다...</p>
+                <p><span class="eco-icon">⚡</span>결과 분석 중...</p>
             </div>
         </div>
 
-        <!-- 결과 표시 영역 -->
-        <div class="results-container" id="resultsContainer">
-            <h2>📊 진단 결과</h2>
-            <div class="score-display" id="scoreDisplay">
-                <div class="score-number" id="overallScore">0.0</div>
-                <div class="score-label" id="maturityLevel">Level 1 - 기존(Traditional)</div>
-            </div>
-            
-            <div class="chart-container">
-                <div id="radarChart"></div>
-            </div>
-            
-            <div class="area-scores" id="areaScores"></div>
-        </div>
+        <div class="success-message" id="successMessage"></div>
+        <div class="error-message" id="errorMessage"></div>
     </div>
 
     <script>
-        // ✅ 실제 웹 앱 URL로 연결!
+        // ✅ Netlify Functions URL로 설정
         const API_URL = '/.netlify/functions/submit-esg';
         
-        // 보안 진단 질문 데이터
-        const questions = {
-            "신원": [
-                "온프레미스(사내 서버)와 외부 클라우드 서비스의 ID 관리를 통합하여 사용하고 있습니까?",
-                "다단계 인증(MFA)를 사용하고 있습니까?", 
-                "클라우드 기반 인증 및 FIDO(생체인증 표준) 기반 인증을 지원합니까?",
-                "AI 기반으로 위험도를 자동 판단하여 보안정책을 적용할 수 있습니까?"
-            ],
-            "기기 및 엔드포인트": [
-                "모든 기기(PC, 스마트폰, 태블릿 등)의 보안정책 준수 정보를 수집하고 있습니까?",
-                "대부분의 기기에 보안정책을 자동으로 적용하고 있습니까?",
-                "모든 기기에 대해 위협 탐지 및 자동 대응이 가능합니까?",
-                "기기 보안상태를 실시간으로 모니터링하고 자동 관리가 가능합니까?"
-            ],
-            "네트워크": [
-                "경계보안(방화벽) 중심의 네트워크에서 모든 트래픽 모니터링이 가능합니까?",
-                "내부 애플리케이션들 간의 트래픽을 서로 격리하고 있습니까?",
-                "마이크로 세그멘테이션을 통해 각 애플리케이션을 독립적으로 보호하고 있습니까?",
-                "자동화된 네트워크 보안 정책 배포 및 관리가 가능합니까?"
-            ],
-            "시스템": [
-                "시스템 접근 시 단순한 ID/패스워드만 사용하고 있습니까? (낮을수록 좋음)",
-                "각 시스템을 독립적으로 관리하고 있습니까?",
-                "온프레미스와 클라우드 시스템에 보안 패치를 자동으로 적용할 수 있습니까?",
-                "모든 시스템을 실시간으로 모니터링하고 자동 보안 대응이 가능합니까?"
-            ],
-            "애플리케이션": [
-                "애플리케이션 접근 권한을 수동으로 설정하고 있습니까?",
-                "애플리케이션 개발 시 기본적인 보안 테스트를 수행하고 있습니까?",
-                "최소권한 원칙으로 애플리케이션 접근을 자동 제어하고 있습니까?",
-                "실시간 위험 분석을 통해 애플리케이션 접근을 자동으로 제어할 수 있습니까?"
-            ],
-            "데이터": [
-                "데이터를 수동으로 분류하고 접근권한을 설정하고 있습니까?",
-                "일부 중요 데이터에 대해 자동 분류 및 접근 제어가 가능합니까?",
-                "최소권한 원칙으로 데이터 접근을 자동 관리하고 있습니까?",
-                "AI를 이용하여 실시간으로 데이터를 분류하고 접근을 제어하고 있습니까?"
-            ]
+        // 현재 상태 관리
+        let currentSection = 0;
+        let answers = {};
+        let companyInfo = {};
+
+        // 영역별 정보 및 질문 데이터
+        const assessmentAreas = {
+            "신원": {
+                title: "신원 (Identity)",
+                description: "사용자와 기기를 고유하게 식별하고 인증하는 체계입니다. 적절한 인증 방법으로 신원을 검증하고 리스크 기반 접근 제어를 수행합니다.",
+                questions: [
+                    "온프레미스와 클라우드 서비스의 ID 관리를 통합하여 사용합니까?",
+                    "다단계 인증(MFA)를 사용하고 있습니까?", 
+                    "클라우드 기반 인증 및 생체인증을 지원합니까?",
+                    "AI 기반으로 위험도를 자동 판단하여 보안정책을 적용합니까?"
+                ]
+            },
+            "기기 및 엔드포인트": {
+                title: "기기 및 엔드포인트",
+                description: "기업망에 연결된 모든 하드웨어 기기의 보안을 관리합니다. 신뢰도가 낮은 기기의 접근을 차단하고 보안 정책을 자동 적용합니다.",
+                questions: [
+                    "모든 기기의 보안정책 준수 정보를 수집하고 있습니까?",
+                    "대부분의 기기에 보안정책을 자동으로 적용하고 있습니까?",
+                    "모든 기기에 대해 위협 탐지 및 자동 대응이 가능합니까?",
+                    "기기 보안상태를 실시간으로 모니터링하고 자동 관리합니까?"
+                ]
+            },
+            "네트워크": {
+                title: "네트워크",
+                description: "데이터 전송에 사용되는 모든 네트워크를 세분화하여 관리합니다. 마이크로 세그멘테이션으로 무단 접근을 방지합니다.",
+                questions: [
+                    "경계보안 중심의 네트워크에서 모든 트래픽을 모니터링합니까?",
+                    "내부 애플리케이션들 간의 트래픽을 서로 격리하고 있습니까?",
+                    "마이크로 세그멘테이션으로 각 애플리케이션을 보호합니까?",
+                    "자동화된 네트워크 보안 정책 배포 및 관리가 가능합니까?"
+                ]
+            },
+            "시스템": {
+                title: "시스템",
+                description: "중요 애플리케이션과 데이터를 관리하는 서버 시스템의 보안입니다. 세밀한 접근 제어와 자동화된 보안 관리가 필요합니다.",
+                questions: [
+                    "시스템 접근 시 단순한 ID/패스워드만 사용합니까?",
+                    "각 시스템을 독립적으로 관리하고 있습니까?",
+                    "온프레미스와 클라우드 시스템에 보안 패치를 자동 적용합니까?",
+                    "모든 시스템을 실시간 모니터링하고 자동 대응이 가능합니까?"
+                ]
+            },
+            "애플리케이션": {
+                title: "애플리케이션 및 워크로드",
+                description: "기업의 서비스와 프로그램의 보안을 관리합니다. 최소권한 원칙과 실시간 위험 분석을 통해 안전한 애플리케이션 환경을 구축합니다.",
+                questions: [
+                    "애플리케이션 접근 권한을 수동으로 설정하고 있습니까?",
+                    "애플리케이션 개발 시 기본적인 보안 테스트를 수행합니까?",
+                    "최소권한 원칙으로 애플리케이션 접근을 자동 제어합니까?",
+                    "실시간 위험 분석으로 애플리케이션 접근을 자동 제어합니까?"
+                ]
+            },
+            "데이터": {
+                title: "데이터",
+                description: "가장 중요한 자산인 데이터를 보호합니다. 데이터 분류, 암호화, 접근 제어를 통해 무단 유출을 방지합니다.",
+                questions: [
+                    "데이터를 수동으로 분류하고 접근권한을 설정하고 있습니까?",
+                    "일부 중요 데이터에 대해 자동 분류 및 접근 제어가 가능합니까?",
+                    "최소권한 원칙으로 데이터 접근을 자동 관리하고 있습니까?",
+                    "AI를 이용하여 실시간으로 데이터를 분류하고 접근 제어합니까?"
+                ]
+            }
         };
 
-        let currentQuestionIndex = 0;
-        let answers = {};
-        let totalQuestions = 0;
+        const areaNames = Object.keys(assessmentAreas);
 
-        // 전체 질문 수 계산
-        Object.values(questions).forEach(categoryQuestions => {
-            totalQuestions += categoryQuestions.length;
-        });
+        // 페이지 표시 함수
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+        }
 
-        document.getElementById('startBtn').addEventListener('click', function() {
-            // 기업 정보 유효성 검사
+        // 진단 시작
+        function startAssessment() {
             const companyName = document.getElementById('companyName').value;
             const email = document.getElementById('email').value;
             const companySize = document.getElementById('companySize').value;
             const businessType = document.getElementById('businessType').value;
 
             if (!companyName || !email || !companySize || !businessType) {
-                showError('모든 기업 정보를 입력해주세요.');
+                showError('모든 기업 정보를 입력해주세요.', 'companyErrorMessage');
                 return;
             }
 
-            // 질문 섹션 표시
-            document.getElementById('questionsSection').style.display = 'block';
-            generateQuestions();
-            this.style.display = 'none';
-            document.getElementById('submitBtn').classList.remove('hidden');
-            updateProgress();
-        });
+            companyInfo = {
+                companyName,
+                email,
+                companySize,
+                businessType
+            };
 
-        function generateQuestions() {
+            currentSection = 0;
+            answers = {};
+            showQuestionSection();
+        }
+
+        // 질문 섹션 표시
+        function showQuestionSection() {
+            const areaName = areaNames[currentSection];
+            const areaData = assessmentAreas[areaName];
+
+            document.getElementById('sectionTitle').innerHTML = `<span class="eco-icon">🔍</span>${areaData.title}`;
+            document.getElementById('sectionSubtitle').textContent = `${currentSection + 1} / ${areaNames.length} 영역`;
+            document.getElementById('sectionDescription').textContent = areaData.description;
+
+            generateQuestions(areaName, areaData.questions);
+            updateProgress();
+            updateNavigationButtons();
+            showPage('questionPage');
+        }
+
+        // 질문 생성
+        function generateQuestions(areaName, questions) {
             const container = document.getElementById('questionsContainer');
             container.innerHTML = '';
-            let questionIndex = 0;
 
-            Object.entries(questions).forEach(([category, categoryQuestions]) => {
-                categoryQuestions.forEach((question, index) => {
-                    const questionCard = document.createElement('div');
-                    questionCard.className = 'question-card';
-                    questionCard.innerHTML = `
-                        <div class="question-text">
-                            <strong>[${category}] ${questionIndex + 1}/${totalQuestions}</strong><br>
-                            ${question}
+            questions.forEach((question, index) => {
+                const questionCard = document.createElement('div');
+                questionCard.className = 'question-card';
+                questionCard.innerHTML = `
+                    <div class="question-text">
+                        <strong>Q${index + 1}.</strong> ${question}
+                    </div>
+                    <div class="rating-container">
+                        <div class="rating-option">
+                            <input type="radio" id="q${currentSection}_${index}_1" name="question_${currentSection}_${index}" value="1">
+                            <label for="q${currentSection}_${index}_1">1점<br>전혀 없음</label>
                         </div>
-                        <div class="rating-container">
-                            <div class="rating-option">
-                                <input type="radio" id="q${questionIndex}_1" name="question_${questionIndex}" value="1">
-                                <label for="q${questionIndex}_1">1점<br>전혀 없음</label>
-                            </div>
-                            <div class="rating-option">
-                                <input type="radio" id="q${questionIndex}_2" name="question_${questionIndex}" value="2">
-                                <label for="q${questionIndex}_2">2점<br>부분적 구현</label>
-                            </div>
-                            <div class="rating-option">
-                                <input type="radio" id="q${questionIndex}_3" name="question_${questionIndex}" value="3">
-                                <label for="q${questionIndex}_3">3점<br>대부분 구현</label>
-                            </div>
-                            <div class="rating-option">
-                                <input type="radio" id="q${questionIndex}_4" name="question_${questionIndex}" value="4">
-                                <label for="q${questionIndex}_4">4점<br>완전 구현</label>
-                            </div>
+                        <div class="rating-option">
+                            <input type="radio" id="q${currentSection}_${index}_2" name="question_${currentSection}_${index}" value="2">
+                            <label for="q${currentSection}_${index}_2">2점<br>부분 구현</label>
                         </div>
-                    `;
-                    container.appendChild(questionCard);
-                    questionIndex++;
-                });
+                        <div class="rating-option">
+                            <input type="radio" id="q${currentSection}_${index}_3" name="question_${currentSection}_${index}" value="3">
+                            <label for="q${currentSection}_${index}_3">3점<br>대부분 구현</label>
+                        </div>
+                        <div class="rating-option">
+                            <input type="radio" id="q${currentSection}_${index}_4" name="question_${currentSection}_${index}" value="4">
+                            <label for="q${currentSection}_${index}_4">4점<br>완전 구현</label>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(questionCard);
             });
 
-            // 답변 변경 시 진행률 업데이트
-            container.addEventListener('change', updateProgress);
+            // 기존 답변 복원
+            if (answers[areaName]) {
+                answers[areaName].forEach((score, index) => {
+                    const radio = document.querySelector(`input[name="question_${currentSection}_${index}"][value="${score}"]`);
+                    if (radio) radio.checked = true;
+                });
+            }
         }
 
+        // 진행률 업데이트
         function updateProgress() {
-            const totalInputs = document.querySelectorAll('input[type="radio"]');
-            const checkedInputs = document.querySelectorAll('input[type="radio"]:checked');
-            const companyInfoFilled = document.getElementById('companyName').value && 
-                                    document.getElementById('email').value &&
-                                    document.getElementById('companySize').value &&
-                                    document.getElementById('businessType').value;
+            const totalSections = areaNames.length;
+            const progress = ((currentSection + 1) / totalSections) * 100;
+            
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('progressText').textContent = `진행률: ${Math.round(progress)}%`;
+        }
 
-            let progress = 0;
-            if (companyInfoFilled) {
-                progress = 20 + (checkedInputs.length / totalQuestions * 80);
+        // 네비게이션 버튼 업데이트
+        function updateNavigationButtons() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+
+            if (currentSection === 0) {
+                prevBtn.onclick = () => showPage('companyInfoPage');
+                prevBtn.innerHTML = '<span class="eco-icon">⬅️</span>기업정보';
             } else {
-                progress = 0;
+                prevBtn.onclick = previousSection;
+                prevBtn.innerHTML = '<span class="eco-icon">⬅️</span>이전';
             }
 
-            document.getElementById('progressBar').style.width = progress + '%';
-            
-            if (progress < 20) {
-                document.getElementById('progressText').textContent = '기업정보 입력 중...';
-            } else if (progress < 100) {
-                document.getElementById('progressText').textContent = `진단 진행 중... (${checkedInputs.length}/${totalQuestions} 완료)`;
+            if (currentSection === areaNames.length - 1) {
+                nextBtn.onclick = completeAssessment;
+                nextBtn.innerHTML = '<span class="eco-icon">✅</span>완료';
             } else {
-                document.getElementById('progressText').textContent = '진단 완료! 결과 확인을 위해 "진단 완료" 버튼을 클릭하세요.';
+                nextBtn.onclick = nextSection;
+                nextBtn.innerHTML = '<span class="eco-icon">▶️</span>다음';
             }
         }
 
-        document.getElementById('submitBtn').addEventListener('click', function() {
-            // 모든 질문 응답 확인
-            const checkedInputs = document.querySelectorAll('input[type="radio"]:checked');
-            if (checkedInputs.length < totalQuestions) {
-                showError(`모든 질문에 답변해주세요. (${checkedInputs.length}/${totalQuestions} 완료)`);
+        // 현재 섹션 답변 수집
+        function collectCurrentSectionAnswers() {
+            const areaName = areaNames[currentSection];
+            const questions = assessmentAreas[areaName].questions;
+            const sectionAnswers = [];
+
+            for (let i = 0; i < questions.length; i++) {
+                const selectedOption = document.querySelector(`input[name="question_${currentSection}_${i}"]:checked`);
+                if (!selectedOption) {
+                    return null;
+                }
+                sectionAnswers.push(parseInt(selectedOption.value));
+            }
+
+            answers[areaName] = sectionAnswers;
+            return sectionAnswers;
+        }
+
+        // 다음 섹션
+        function nextSection() {
+            const sectionAnswers = collectCurrentSectionAnswers();
+            if (!sectionAnswers) {
+                showError('모든 질문에 답변해주세요.', 'questionErrorMessage');
                 return;
             }
 
-            // 답변 수집
-            collectAnswers();
-            
-            // 점수 계산
-            const scores = calculateScores();
-            
-            // 결과 표시
-            displayResults(scores);
-            
-            // 서버에 데이터 전송
-            submitToServer(scores);
-        });
-
-        function collectAnswers() {
-            answers = {};
-            let questionIndex = 0;
-
-            Object.keys(questions).forEach(category => {
-                answers[category] = [];
-                questions[category].forEach(() => {
-                    const selectedOption = document.querySelector(`input[name="question_${questionIndex}"]:checked`);
-                    answers[category].push(parseInt(selectedOption.value));
-                    questionIndex++;
-                });
-            });
+            currentSection++;
+            showQuestionSection();
         }
 
+        // 이전 섹션
+        function previousSection() {
+            collectCurrentSectionAnswers();
+            currentSection--;
+            showQuestionSection();
+        }
+
+        // 진단 완료
+        function completeAssessment() {
+            const sectionAnswers = collectCurrentSectionAnswers();
+            if (!sectionAnswers) {
+                showError('모든 질문에 답변해주세요.', 'questionErrorMessage');
+                return;
+            }
+
+            const scores = calculateScores();
+            displayResults(scores);
+            submitToServer(scores);
+            showPage('resultsPage');
+        }
+
+        // 점수 계산
         function calculateScores() {
             const scores = {};
             let totalScore = 0;
             let questionCount = 0;
 
-            Object.entries(answers).forEach(([category, categoryAnswers]) => {
-                const categoryScore = categoryAnswers.reduce((sum, score) => sum + score, 0) / categoryAnswers.length;
-                scores[category] = Math.round(categoryScore * 10) / 10;
-                totalScore += categoryScore;
+            Object.entries(answers).forEach(([area, areaAnswers]) => {
+                const areaScore = areaAnswers.reduce((sum, score) => sum + score, 0) / areaAnswers.length;
+                scores[area] = Math.round(areaScore * 10) / 10;
+                totalScore += areaScore;
                 questionCount++;
             });
 
@@ -631,6 +1121,7 @@
             };
         }
 
+        // 성숙도 레벨 결정
         function determineMaturityLevel(score) {
             if (score <= 1.5) return { level: 1, name: "기존(Traditional)" };
             if (score <= 2.5) return { level: 2, name: "초기(Initial)" };
@@ -638,6 +1129,7 @@
             return { level: 4, name: "최적화(Optimal)" };
         }
 
+        // 결과 표시
         function displayResults(scores) {
             document.getElementById('overallScore').textContent = scores.overall.toFixed(1);
             document.getElementById('maturityLevel').textContent = `Level ${scores.maturityLevel.level} - ${scores.maturityLevel.name}`;
@@ -658,14 +1150,9 @@
 
             // 레이더 차트 생성
             createRadarChart(scores.areas);
-
-            // 결과 영역 표시
-            document.getElementById('resultsContainer').style.display = 'block';
-            
-            // 결과 영역으로 스크롤
-            document.getElementById('resultsContainer').scrollIntoView({ behavior: 'smooth' });
         }
 
+        // 레이더 차트 생성
         function createRadarChart(areaScores) {
             const areas = Object.keys(areaScores);
             const scores = Object.values(areaScores);
@@ -675,14 +1162,14 @@
                 r: scores,
                 theta: areas,
                 fill: 'toself',
-                fillcolor: 'rgba(52, 152, 219, 0.3)',
+                fillcolor: 'rgba(76, 175, 80, 0.3)',
                 line: {
-                    color: 'rgb(52, 152, 219)',
+                    color: '#4caf50',
                     width: 3
                 },
                 marker: {
-                    color: 'rgb(52, 152, 219)',
-                    size: 8
+                    color: '#4caf50',
+                    size: 10
                 },
                 name: '현재 점수'
             }];
@@ -692,17 +1179,17 @@
                     radialaxis: {
                         visible: true,
                         range: [0, 4],
-                        tickfont: { size: 12 },
-                        gridcolor: '#E8E8E8'
+                        tickfont: { size: 12, color: '#2e7d32' },
+                        gridcolor: '#c8e6c9'
                     },
                     angularaxis: {
-                        tickfont: { size: 14 }
+                        tickfont: { size: 14, color: '#2e7d32' }
                     }
                 },
                 showlegend: false,
                 title: {
                     text: '영역별 보안 성숙도',
-                    font: { size: 18, color: '#2c3e50' }
+                    font: { size: 18, color: '#2e7d32' }
                 },
                 paper_bgcolor: 'rgba(0,0,0,0)',
                 plot_bgcolor: 'rgba(0,0,0,0)'
@@ -711,14 +1198,89 @@
             Plotly.newPlot('radarChart', data, layout, {responsive: true});
         }
 
+        // 메인 페이지 차트 생성 함수들
+        function createESGPieChart() {
+            const data = [{
+                values: [66.7, 33.3],
+                labels: ['ESG 도입', 'ESG 미도입'],
+                type: 'pie',
+                marker: {
+                    colors: ['#4caf50', '#e8f5e8']
+                },
+                textinfo: 'label+percent',
+                textposition: 'outside',
+                hoverinfo: 'label+percent'
+            }];
+
+            const layout = {
+                title: {
+                    text: '일반 중견기업',
+                    font: { size: 14 }
+                },
+                showlegend: false,
+                margin: { t: 40, b: 20, l: 20, r: 20 },
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)'
+            };
+
+            Plotly.newPlot('esgPieChart', data, layout, {responsive: true});
+        }
+
+        function createIndustryBarChart() {
+            const data = [{
+                x: ['제조업', '금융업', 'IT/SW', '서비스', '전통업'],
+                y: [71.6, 78.2, 65.3, 47.6, 42.1],
+                type: 'bar',
+                marker: {
+                    color: ['#2e7d32', '#388e3c', '#43a047', '#4caf50', '#66bb6a']
+                }
+            }];
+
+            const layout = {
+                yaxis: { 
+                    title: '도입률(%)',
+                    range: [0, 100]
+                },
+                margin: { t: 20, b: 40, l: 40, r: 20 },
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)'
+            };
+
+            Plotly.newPlot('industryBarChart', data, layout, {responsive: true});
+        }
+
+        function createTrendLineChart() {
+            const data = [{
+                x: ['2021', '2022', '2023', '2024'],
+                y: [38.5, 48.6, 56.1, 66.7],
+                type: 'scatter',
+                mode: 'lines+markers',
+                line: { color: '#4caf50', width: 3 },
+                marker: { size: 10, color: '#2e7d32' }
+            }];
+
+            const layout = {
+                yaxis: { 
+                    title: 'ESG 도입률(%)',
+                    range: [30, 70]
+                },
+                margin: { t: 20, b: 40, l: 40, r: 20 },
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)'
+            };
+
+            Plotly.newPlot('trendLineChart', data, layout, {responsive: true});
+        }
+
+        // 서버에 데이터 전송
         function submitToServer(scores) {
             document.getElementById('loadingMessage').style.display = 'block';
 
             const formData = {
-                companyName: document.getElementById('companyName').value,
-                email: document.getElementById('email').value,
-                companySize: document.getElementById('companySize').value,
-                businessType: document.getElementById('businessType').value,
+                companyName: companyInfo.companyName,
+                email: companyInfo.email,
+                companySize: companyInfo.companySize,
+                businessType: companyInfo.businessType,
                 overallScore: scores.overall,
                 maturityLevel: scores.maturityLevel.level,
                 identityScore: scores.areas['신원'] || 0,
@@ -742,20 +1304,32 @@
                 document.getElementById('loadingMessage').style.display = 'none';
                 
                 if (data.success) {
-                    showSuccess('진단 결과가 성공적으로 저장되었습니다!');
+                    showSuccess('🎉 진단 결과가 성공적으로 저장되었습니다!');
                 } else {
-                    showError('데이터 저장 중 오류가 발생했습니다: ' + data.message);
+                    showError('❌ 데이터 저장 중 오류가 발생했습니다: ' + data.message);
                 }
             })
             .catch(error => {
                 document.getElementById('loadingMessage').style.display = 'none';
                 console.error('Error:', error);
-                showError('서버 연결 오류가 발생했습니다. 네트워크 연결을 확인해주세요.');
+                showError('🌐 서버 연결 오류가 발생했습니다.');
             });
         }
 
-        function showError(message) {
-            const errorDiv = document.getElementById('errorMessage');
+        // 다시 진단하기
+        function restartAssessment() {
+            currentSection = 0;
+            answers = {};
+            companyInfo = {};
+            
+            document.getElementById('companyForm').reset();
+            
+            showPage('companyInfoPage');
+        }
+
+        // 오류 메시지 표시
+        function showError(message, elementId = 'errorMessage') {
+            const errorDiv = document.getElementById(elementId);
             errorDiv.textContent = message;
             errorDiv.style.display = 'block';
             setTimeout(() => {
@@ -763,6 +1337,7 @@
             }, 5000);
         }
 
+        // 성공 메시지 표시
         function showSuccess(message) {
             const successDiv = document.getElementById('successMessage');
             successDiv.textContent = message;
@@ -772,14 +1347,11 @@
             }, 5000);
         }
 
-        // 페이지 로드 시 진행률 초기화
+        // 페이지 로드 시 초기화
         document.addEventListener('DOMContentLoaded', function() {
-            updateProgress();
-            
-            // 기업 정보 입력 시 진행률 업데이트
-            ['companyName', 'email', 'companySize', 'businessType'].forEach(id => {
-                document.getElementById(id).addEventListener('change', updateProgress);
-            });
+            createESGPieChart();
+            createIndustryBarChart();
+            createTrendLineChart();
         });
     </script>
 </body>
